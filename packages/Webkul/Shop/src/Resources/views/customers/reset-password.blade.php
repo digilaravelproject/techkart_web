@@ -32,10 +32,9 @@
                 aria-label="@lang('shop::app.customers.reset-password.bagisto')"
             >
                 <img
-                    src="{{ core()->getCurrentChannel()->logo_url ?? bagisto_asset('images/logo.svg') }}"
+                    src="{{ core()->getCurrentChannel()->logo_url ?? asset('images/FullLogo_NoBuffer.jpeg') }}"
                     alt="{{ core()->getCurrentChannel()->logo_alt ?: config('app.name') }}"
-                    width="131"
-                    height="29"
+                    class="max-h-[40px] w-auto object-contain"
                 >
             </a>
         </div>
@@ -148,8 +147,9 @@
 
         </div>
 
-        <p class="mb-4 mt-8 text-center text-xs text-zinc-500">
-            @lang('shop::app.customers.reset-password.footer', ['current_year'=> date('Y') ])
-        </p>
+        <div class="mb-4 mt-8 flex items-center justify-center gap-2 text-center text-xs text-zinc-500">
+            <img src="{{ asset('images/FullLogo_NoBuffer.jpeg') }}" alt="Digi Emperor" class="h-4 w-auto">
+            <span>Develop by <a href="https://digiemperor.com/" target="_blank" class="text-blue-600 hover:underline font-medium">Digi Emperor</a></span>
+        </div>
     </div>
 </x-shop::layouts>

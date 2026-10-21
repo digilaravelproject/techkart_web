@@ -35,7 +35,7 @@
     >
     <meta
         name="generator"
-        content="Bagisto"
+        content="Digi Emperor"
     >
 
     @stack('meta')
@@ -55,7 +55,7 @@
     <link
         rel="preload"
         as="image"
-        href="{{ url('cache/logo/bagisto.png') }}"
+        href="{{ asset('images/FullLogo_NoBuffer.jpeg') }}"
     >
 
     @if ($favicon = core()->getConfigData('general.design.admin_logo.favicon'))
@@ -122,11 +122,9 @@
 
                 <!-- Powered By -->
                 <div class="mt-auto">
-                    <div class="border-t bg-white py-2 text-center text-xs sm:text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white">
-                        @lang('admin::app.components.layouts.powered-by.description', [
-                            'bagisto' => '<a class="text-blue-600 hover:underline dark:text-darkBlue" href="https://bagisto.com/en/">Bagisto</a>',
-                            'webkul' => '<a class="text-blue-600 hover:underline dark:text-darkBlue" href="https://webkul.com/">Webkul</a>',
-                        ])
+                    <div class="border-t bg-white py-2 text-center text-xs sm:text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white flex items-center justify-center gap-2">
+                        <img src="{{ asset('images/FullLogo_NoBuffer.jpeg') }}" alt="Digi Emperor Logo" class="h-5 w-auto">
+                        <span>Develop by <a class="text-blue-600 hover:underline dark:text-darkBlue font-medium" href="https://digiemperor.com/" target="_blank">Digi Emperor</a></span>
                     </div>
                 </div>
             </div>

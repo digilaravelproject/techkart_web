@@ -127,16 +127,17 @@
         {!! view_render_event('bagisto.shop.layout.footer.newsletter_subscription.after') !!}
     </div>
 
-    <div class="flex justify-between bg-[#F1EADF] px-[60px] py-3.5 max-md:justify-center max-sm:px-5">
+    <div class="flex items-center justify-between bg-[#F1EADF] px-[60px] py-3.5 max-md:justify-center max-sm:px-5">
         {!! view_render_event('bagisto.shop.layout.footer.footer_text.before') !!}
 
-        <p class="text-sm text-zinc-600 max-md:text-center">
+        <div class="flex items-center gap-2 text-sm text-zinc-600 max-md:text-center">
             @if (core()->getConfigData('general.content.footer.copyright_content'))
                 {!! clean_content((string) core()->getConfigData('general.content.footer.copyright_content')) !!}
             @else
-                @lang('shop::app.components.layouts.footer.footer-text', ['current_year'=> date('Y') ])
+                <img src="{{ asset('images/FullLogo_NoBuffer.jpeg') }}" alt="Digi Emperor" class="h-4 w-auto">
+                <span>Develop by <a href="https://digiemperor.com/" target="_blank" class="text-blue-600 hover:underline font-medium">Digi Emperor</a></span>
             @endif
-        </p>
+        </div>
 
         {!! view_render_event('bagisto.shop.layout.footer.footer_text.after') !!}
     </div>

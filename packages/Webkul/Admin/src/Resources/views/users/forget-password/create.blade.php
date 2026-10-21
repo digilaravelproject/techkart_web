@@ -15,8 +15,8 @@
                 />
             @else
                 <img
-                    class="w-max" 
-                    src="{{ bagisto_asset('images/logo.svg') }}"
+                    class="h-10 w-auto" 
+                    src="{{ asset('images/FullLogo_NoBuffer.jpeg') }}"
                     alt="{{ config('app.name') }}"
                 />
             @endif
@@ -71,11 +71,9 @@
             </div>
 
             <!-- Powered By -->
-            <div class="text-sm font-normal">
-                @lang('admin::app.users.forget-password.create.powered-by-description', [
-                    'bagisto' => '<a class="text-blue-600 hover:underline" href="https://bagisto.com/en/">Bagisto</a>',
-                    'webkul' => '<a class="text-blue-600 hover:underline" href="https://webkul.com/">Webkul</a>',
-                ])
+            <div class="flex items-center justify-center gap-2 text-sm font-normal">
+                <img src="{{ asset('images/FullLogo_NoBuffer.jpeg') }}" alt="Digi Emperor" class="h-4 w-auto">
+                <span>Develop by <a class="text-blue-600 hover:underline dark:text-darkBlue font-medium" href="https://digiemperor.com/" target="_blank">Digi Emperor</a></span>
             </div>
         </div>
     </div>
