@@ -15,20 +15,19 @@
         @lang('shop::app.customers.login-form.page-title')
     </x-slot>
 
-    <div class="container mt-20 max-1180:px-5 max-md:mt-12">
+    <div class="container my-14 flex flex-col items-center justify-center max-1180:px-5 max-md:my-8">
         {!! view_render_event('bagisto.shop.customers.login.logo.before') !!}
 
         <!-- Company Logo -->
-        <div class="flex items-center gap-x-14 max-[1180px]:gap-x-9">
+        <div class="mb-6 flex items-center justify-center">
             <a
                 href="{{ route('shop.home.index') }}"
-                class="m-[0_auto_20px_auto]"
-                aria-label="@lang('shop::app.customers.login-form.bagisto')"
+                aria-label="{{ config('app.name', 'BEENZO') }}"
             >
                 <img
                     src="{{ core()->getCurrentChannel()->logo_url ?? asset('images/FullLogo_NoBuffer.jpeg') }}"
                     alt="{{ core()->getCurrentChannel()->logo_alt ?: config('app.name') }}"
-                    class="max-h-[40px] w-auto object-contain"
+                    class="max-h-[46px] w-auto object-contain"
                 >
             </a>
         </div>
@@ -36,30 +35,32 @@
         {!! view_render_event('bagisto.shop.customers.login.logo.after') !!}
 
         <!-- Form Container -->
-        <div class="m-auto w-full max-w-[870px] rounded-xl border border-zinc-200 p-16 px-[90px] max-md:px-8 max-md:py-8 max-sm:border-none max-sm:p-0">
-            <h1 class="font-dmserif text-4xl max-md:text-3xl max-sm:text-xl">
-                @lang('shop::app.customers.login-form.page-title')
-            </h1>
+        <div class="w-full max-w-[500px] rounded-2xl border border-[#D9C2A4]/50 bg-white p-10 shadow-lg max-md:p-8 max-sm:border-none max-sm:p-4 max-sm:shadow-none">
+            <div class="text-center">
+                <h1 class="font-dmserif text-3xl text-zinc-900 max-sm:text-2xl">
+                    @lang('shop::app.customers.login-form.page-title')
+                </h1>
 
-            <p class="mt-4 text-xl text-zinc-500 max-sm:mt-0 max-sm:text-sm">
-                @lang('shop::app.customers.login-form.form-login-text')
-            </p>
+                <p class="mt-2 text-sm text-zinc-500">
+                    @lang('shop::app.customers.login-form.form-login-text')
+                </p>
+            </div>
 
             {!! view_render_event('bagisto.shop.customers.login.before') !!}
 
-            <div class="mt-14 rounded max-sm:mt-8">
+            <div class="mt-8">
                 <x-shop::form :action="route('shop.customer.session.create')">
                     {!! view_render_event('bagisto.shop.customers.login_form_controls.before') !!}
 
                     <!-- Email -->
                     <x-shop::form.control-group>
-                        <x-shop::form.control-group.label class="required">
+                        <x-shop::form.control-group.label class="required font-medium text-zinc-700">
                             @lang('shop::app.customers.login-form.email')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="email"
-                            class="px-6 py-4 max-md:py-3 max-sm:py-2"
+                            class="rounded-xl px-4 py-3 border-zinc-300 focus:border-[#c2955e] focus:ring-1 focus:ring-[#c2955e]"
                             name="email"
                             rules="required|email"
                             value=""
@@ -73,14 +74,14 @@
                     </x-shop::form.control-group>
 
                     <!-- Password -->
-                    <x-shop::form.control-group>
-                        <x-shop::form.control-group.label class="required">
+                    <x-shop::form.control-group class="mb-2">
+                        <x-shop::form.control-group.label class="required font-medium text-zinc-700">
                             @lang('shop::app.customers.login-form.password')
                         </x-shop::form.control-group.label>
 
                         <x-shop::form.control-group.control
                             type="password"
-                            class="px-6 py-4 max-md:py-3 max-sm:py-2"
+                            class="rounded-xl px-4 py-3 border-zinc-300 focus:border-[#c2955e] focus:ring-1 focus:ring-[#c2955e]"
                             id="password"
                             name="password"
                             rules="required|min:6"
@@ -94,22 +95,18 @@
                         <x-shop::form.control-group.error control-name="password" />
                     </x-shop::form.control-group>
 
-                    <div class="flex justify-end">
-                        <div class="block">
-                            <a
-                                href="{{ route('shop.customers.forgot_password.create') }}"
-                                class="cursor-pointer text-base text-black max-sm:text-sm"
-                            >
-                                <span>
-                                    @lang('shop::app.customers.login-form.forgot-pass')
-                                </span>
-                            </a>
-                        </div>
+                    <div class="flex justify-end mb-4">
+                        <a
+                            href="{{ route('shop.customers.forgot_password.create') }}"
+                            class="cursor-pointer text-xs font-semibold text-navyBlue hover:underline"
+                        >
+                            @lang('shop::app.customers.login-form.forgot-pass')
+                        </a>
                     </div>
 
                     <!-- Captcha -->
                     @if (core()->getConfigData('customer.captcha.credentials.status'))
-                        <x-shop::form.control-group class="mt-5">
+                        <x-shop::form.control-group class="mt-4">
                             {!! \Webkul\Customer\Facades\Captcha::render() !!}
 
                             <x-shop::form.control-group.error control-name="recaptcha_token" />
@@ -117,16 +114,14 @@
                     @endif
 
                     <!-- Submit Button -->
-                    <div class="mt-8 flex flex-wrap items-center gap-9 max-sm:justify-center max-sm:gap-5 max-sm:text-center">
+                    <div class="mt-6">
                         <button
-                            class="primary-button m-0 mx-auto block w-full max-w-[374px] rounded-2xl px-11 py-4 text-center text-base max-md:max-w-full max-md:rounded-lg max-md:py-3 max-sm:py-1.5 ltr:ml-0 rtl:mr-0"
+                            class="primary-button !w-full !max-w-full rounded-xl py-3.5 text-center text-base font-semibold shadow-sm transition-all hover:shadow-md"
                             type="submit"
                         >
                             @lang('shop::app.customers.login-form.button-title')
                         </button>
                     </div>
-
-                    {!! view_render_event('bagisto.shop.customers.login_form_controls.after') !!}
                 </x-shop::form>
             </div>
 
@@ -136,9 +131,9 @@
                 request()->cookie('enable-resend')
                 && request()->cookie('email-for-resend')
             )
-                <p class="mt-5 font-medium text-zinc-500 max-sm:text-center max-sm:text-sm">
+                <p class="mt-4 text-center text-sm font-medium text-zinc-500">
                     <a
-                        class="text-navyBlue"
+                        class="text-navyBlue hover:underline font-semibold"
                         href="{{ route('shop.customers.resend.verification_email', urlencode(request()->cookie('email-for-resend'))) }}"
                     >
                         @lang('shop::app.customers.login-form.resend-verification')
@@ -146,16 +141,16 @@
                 </p>
             @endif
 
-            <p class="mt-5 font-medium text-zinc-500 max-sm:text-center max-sm:text-sm">
+            <div class="mt-8 border-t border-zinc-100 pt-6 text-center text-sm font-medium text-zinc-600">
                 @lang('shop::app.customers.login-form.new-customer')
 
                 <a
-                    class="text-navyBlue"
+                    class="font-semibold text-navyBlue hover:underline ml-1"
                     href="{{ route('shop.customers.register.index') }}"
                 >
                     @lang('shop::app.customers.login-form.create-your-account')
                 </a>
-            </p>
+            </div>
         </div>
 
         <div class="mb-4 mt-8 flex items-center justify-center gap-2 text-center text-xs text-zinc-500">
