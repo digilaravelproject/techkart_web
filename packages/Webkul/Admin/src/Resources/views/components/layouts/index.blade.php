@@ -9,7 +9,7 @@
 <head>
     {!! view_render_event('bagisto.admin.layout.head.before') !!}
 
-    <title>{{ $title ?? '' }}</title>
+    <title>{{ !empty(trim($title ?? '')) ? $title . ' - ' . config('app.name', 'BEENZO') : config('app.name', 'BEENZO') }}</title>
 
     <meta charset="UTF-8">
 

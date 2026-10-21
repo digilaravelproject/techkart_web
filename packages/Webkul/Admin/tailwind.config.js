@@ -26,8 +26,21 @@ module.exports = {
         extend: {
             colors: {
                 darkGreen: '#40994A',
-                darkBlue: '#0044F2',
+                darkBlue: '#c2955e',
                 darkPink: '#F85156',
+                beenzo: {
+                    DEFAULT: "#c2955e",
+                    50: "#FFFAE7",
+                    100: "#F4E0C5",
+                    200: "#D9C2A4",
+                    300: "#BDA584",
+                    400: "#B69770",
+                    500: "#c2955e",
+                    600: "#C29559",
+                    700: "#BF9564",
+                    800: "#8a6639",
+                    900: "#543d20",
+                },
             },
 
             fontFamily: {

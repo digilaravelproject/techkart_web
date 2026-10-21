@@ -14,7 +14,7 @@
 
         {!! view_render_event('bagisto.shop.layout.head.before') !!}
 
-        <title>{{ $title ?? '' }}</title>
+        <title>{{ !empty(trim($title ?? '')) ? $title : (core()->getCurrentChannel()->name ?? config('app.name', 'BEENZO')) }}</title>
 
         <meta charset="UTF-8">
 
