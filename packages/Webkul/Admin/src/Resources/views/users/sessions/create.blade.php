@@ -4,7 +4,7 @@
         @lang('admin::app.users.sessions.title')
     </x-slot>
 
-    <div class="flex h-[100vh] items-center justify-center">
+    <div class="flex h-[100vh] items-center justify-center bg-[#FDFDF8] dark:bg-gray-950">
         <div class="flex flex-col items-center gap-5">
             <!-- Logo -->            
             @if ($logo = core()->getConfigData('general.design.admin_logo.logo_image'))
@@ -21,7 +21,7 @@
                 />
             @endif
 
-            <div class="box-shadow flex min-w-[300px] flex-col rounded-md bg-white dark:bg-gray-900">
+            <div class="box-shadow flex min-w-[320px] flex-col rounded-xl border border-[#D9C2A4]/50 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900">
                 <!-- Login Form -->
                 <x-admin::form :action="route('admin.session.store')">
                     <p class="p-4 text-xl font-bold text-gray-800 dark:text-white">
@@ -80,7 +80,7 @@
                     <div class="flex items-center justify-between p-4">
                         <!-- Forgot Password Link -->
                         <a 
-                            class="cursor-pointer text-xs font-semibold leading-6 text-blue-600"
+                            class="cursor-pointer text-xs font-semibold leading-6 text-blue-600 hover:text-blue-700 hover:underline"
                             href="{{ route('admin.forget_password.create') }}"
                         >
                             @lang('admin::app.users.sessions.forget-password-link')
@@ -88,7 +88,7 @@
 
                         <!-- Submit Button -->
                         <button
-                            class="cursor-pointer rounded-md border border-blue-700 bg-blue-600 px-3.5 py-1.5 font-semibold text-gray-50"
+                            class="cursor-pointer rounded-lg border border-blue-700 bg-blue-600 px-4 py-2 font-semibold text-white shadow-sm transition-all hover:bg-blue-700"
                             aria-label="{{ trans('admin::app.users.sessions.submit-btn')}}"
                         >
                             @lang('admin::app.users.sessions.submit-btn')
