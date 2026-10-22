@@ -74,4 +74,18 @@ class OrderPlacementListener
             $this->walletTransactionService->reverseOrderCommission($refund->order);
         }
     }
+
+    /**
+     * Handle order status update event.
+     */
+    public function handleStatusUpdate(Order $order): void
+    {
+        if ($order->status === \Webkul\Sales\Models\Order::STATUS_COMPLETED) {
+            $autoRelease = core()->getConfigData('affiliate.general.auto_release_on_completion');
+
+            if ($autoRelease === null || (bool) $autoRelease) {
+                $this->walletTransactionService->releaseOrderCommission($order);
+            }
+        }
+    }
 }

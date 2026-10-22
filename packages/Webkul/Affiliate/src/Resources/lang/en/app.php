@@ -26,6 +26,7 @@ return [
             'default-commission-value' => 'Global Default Commission Rate (% or ₹)',
             'cookie-duration' => 'Referral Cookie Validity (Days)',
             'clearance-days' => 'Commission Clearance Window (Days)',
+            'auto-release-on-completion' => 'Auto-Release Commission When Order Completed',
             'min-withdrawal-amount' => 'Minimum Withdrawal Threshold (₹)',
             'max-commission-cap' => 'Max Commission Cap Per Order (₹)',
         ],

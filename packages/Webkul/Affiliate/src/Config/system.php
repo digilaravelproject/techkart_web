@@ -62,6 +62,13 @@ return [
                 'channel_based' => false,
             ],
             [
+                'name' => 'auto_release_on_completion',
+                'title' => 'affiliate::app.admin.system.auto-release-on-completion',
+                'type' => 'boolean',
+                'channel_based' => false,
+                'locale_based' => false,
+            ],
+            [
                 'name' => 'min_withdrawal_amount',
                 'title' => 'affiliate::app.admin.system.min-withdrawal-amount',
                 'type' => 'text',

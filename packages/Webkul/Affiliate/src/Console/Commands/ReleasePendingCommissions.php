@@ -12,7 +12,7 @@ class ReleasePendingCommissions extends Command
      *
      * @var string
      */
-    protected $signature = 'affiliate:release-pending-commissions';
+    protected $signature = 'affiliate:release-pending-commissions {--force : Force release all pending commissions immediately}';
 
     /**
      * The console command description.
@@ -26,9 +26,11 @@ class ReleasePendingCommissions extends Command
      */
     public function handle(WalletTransactionService $walletTransactionService): int
     {
-        $count = $walletTransactionService->releaseMaturedCommissions();
+        $force = (bool) $this->option('force');
 
-        $this->info("Successfully released {$count} matured affiliate commissions.");
+        $count = $walletTransactionService->releaseMaturedCommissions($force);
+
+        $this->info("Successfully released {$count} affiliate commissions into available wallet balances.");
 
         return 0;
     }

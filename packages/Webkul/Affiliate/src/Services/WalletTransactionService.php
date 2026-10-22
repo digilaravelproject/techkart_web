@@ -58,13 +58,17 @@ class WalletTransactionService
     /**
      * Release all matured commissions whose clearance window has passed.
      */
-    public function releaseMaturedCommissions(): int
+    public function releaseMaturedCommissions(bool $force = false): int
     {
         $matured = $this->commissionRepository->findWhere([
             'status' => 'pending',
-        ])->filter(function ($commission) {
-            return $commission->clears_at && Carbon::now()->greaterThanOrEqualTo($commission->clears_at);
-        });
+        ]);
+
+        if (! $force) {
+            $matured = $matured->filter(function ($commission) {
+                return $commission->clears_at && Carbon::now()->greaterThanOrEqualTo($commission->clears_at);
+            });
+        }
 
         $count = 0;
 
@@ -95,6 +99,59 @@ class WalletTransactionService
                     'status' => 'cleared',
                     'title' => "Commission cleared for Order #{$orderId}",
                     'description' => "₹{$amount} moved to available balance.",
+                ]);
+            });
+
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * Release pending commission for a completed order immediately.
+     */
+    public function releaseOrderCommission(Order $order): int
+    {
+        $commissions = $this->commissionRepository->findWhere([
+            'order_id' => $order->id,
+            'status' => 'pending',
+        ]);
+
+        if ($commissions->isEmpty()) {
+            return 0;
+        }
+
+        $count = 0;
+
+        foreach ($commissions as $commission) {
+            DB::transaction(function () use ($commission, $order) {
+                /** @var AffiliateWallet $wallet */
+                $wallet = $this->walletRepository->getByAffiliateId($commission->affiliate_id);
+
+                $amount = (float) $commission->commission_amount;
+
+                $wallet->pending_balance = max(0, $wallet->pending_balance - $amount);
+                $wallet->available_balance += $amount;
+                $wallet->total_earned += $amount;
+                $wallet->save();
+
+                $commission->status = 'approved';
+                $commission->clears_at = Carbon::now();
+                $commission->save();
+
+                $orderId = $order->increment_id ?? $order->id;
+
+                $this->transactionRepository->create([
+                    'affiliate_id' => $commission->affiliate_id,
+                    'transaction_number' => $this->transactionRepository->generateTransactionNumber(),
+                    'order_id' => $order->id,
+                    'type' => 'credit',
+                    'amount' => $amount,
+                    'balance_after' => $wallet->available_balance,
+                    'status' => 'cleared',
+                    'title' => "Commission cleared for Order #{$orderId}",
+                    'description' => "₹{$amount} moved to available balance upon order completion.",
                 ]);
             });
 
