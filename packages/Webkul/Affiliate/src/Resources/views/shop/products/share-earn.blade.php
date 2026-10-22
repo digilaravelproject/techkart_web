@@ -94,19 +94,25 @@
         @endif
     </div>
 
-    <script>
-        function copyAffiliateLink(url) {
-            navigator.clipboard.writeText(url).then(function() {
-                var toast = document.getElementById('copySuccessToast');
-                if (toast) {
-                    toast.classList.remove('hidden');
-                    setTimeout(function() {
-                        toast.classList.add('hidden');
-                    }, 3000);
+    @pushOnce('scripts')
+        <script>
+            window.copyAffiliateLink = function(url) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        var toast = document.getElementById('copySuccessToast');
+                        if (toast) {
+                            toast.classList.remove('hidden');
+                            setTimeout(function() {
+                                toast.classList.add('hidden');
+                            }, 3000);
+                        }
+                    }).catch(function() {
+                        prompt("Copy your referral link:", url);
+                    });
+                } else {
+                    prompt("Copy your referral link:", url);
                 }
-            }).catch(function() {
-                prompt("Copy your referral link:", url);
-            });
-        }
-    </script>
+            };
+        </script>
+    @endPushOnce
 @endif
