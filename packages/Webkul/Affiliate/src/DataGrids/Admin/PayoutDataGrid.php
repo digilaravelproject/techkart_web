@@ -44,6 +44,18 @@ class PayoutDataGrid extends DataGrid
     public function prepareColumns()
     {
         $this->addColumn([
+            'index' => 'id',
+            'label' => 'ID',
+            'type' => 'integer',
+            'searchable' => true,
+            'sortable' => true,
+            'filterable' => true,
+            'closure' => function ($row) {
+                return '<span class="font-bold text-gray-700 dark:text-gray-300">#'.$row->id.'</span>';
+            },
+        ]);
+
+        $this->addColumn([
             'index' => 'payout_number',
             'label' => trans('affiliate::app.admin.payouts.payout-number'),
             'type' => 'string',
@@ -141,6 +153,33 @@ class PayoutDataGrid extends DataGrid
             'searchable' => true,
             'sortable' => true,
             'filterable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'actions',
+            'label' => trans('affiliate::app.admin.payouts.actions'),
+            'type' => 'string',
+            'searchable' => false,
+            'sortable' => false,
+            'filterable' => false,
+            'closure' => function ($row) {
+                if ($row->status === 'requested' || $row->status === 'processing') {
+                    return '<button type="button" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition" onclick="openPayoutModal('.$row->id.')">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Process
+                    </button>';
+                }
+
+                if ($row->status === 'completed') {
+                    return '<div class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓ Paid'.($row->transaction_reference ? '<span class="block text-gray-500 font-mono text-[11px]">Ref: '.e($row->transaction_reference).'</span>' : '').'</div>';
+                }
+
+                if ($row->status === 'rejected') {
+                    return '<span class="text-xs text-red-500 font-medium">✕ Rejected</span>';
+                }
+
+                return '<span class="text-xs text-gray-400">—</span>';
+            },
         ]);
     }
 }

@@ -27,7 +27,29 @@ class PayoutController extends Controller
             return datagrid(PayoutDataGrid::class)->process();
         }
 
-        return view('affiliate::admin.payouts.index');
+        $pendingPayouts = $this->payoutRepository
+            ->with(['affiliate.customer'])
+            ->findWhereIn('status', ['requested', 'processing']);
+
+        $pendingPayoutsPayload = $pendingPayouts->map(function ($payout) {
+            $details = is_string($payout->payout_details) ? json_decode($payout->payout_details, true) : (array) $payout->payout_details;
+            $customer = $payout->affiliate?->customer;
+
+            return [
+                'id' => $payout->id,
+                'payout_number' => $payout->payout_number,
+                'amount' => (float) $payout->amount,
+                'amount_formatted' => '₹'.number_format((float) $payout->amount, 2),
+                'method' => $payout->payout_method,
+                'details' => $details,
+                'customer_name' => trim(($customer?->first_name ?? '').' '.($customer?->last_name ?? '')) ?: 'N/A',
+                'customer_email' => $customer?->email ?? 'N/A',
+                'status' => $payout->status,
+                'created_at' => $payout->created_at?->format('d M Y, h:i A'),
+            ];
+        })->values();
+
+        return view('affiliate::admin.payouts.index', compact('pendingPayouts', 'pendingPayoutsPayload'));
     }
 
     /**
