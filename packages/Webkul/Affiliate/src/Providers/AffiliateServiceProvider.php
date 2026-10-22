@@ -33,6 +33,8 @@ class AffiliateServiceProvider extends ServiceProvider
 
         $this->loadRoutesFrom(__DIR__.'/../Routes/shop-routes.php');
 
+        $this->loadRoutesFrom(__DIR__.'/../Routes/api-routes.php');
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ReleasePendingCommissions::class,

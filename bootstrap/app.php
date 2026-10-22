@@ -43,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'stripe/*',
+            'api/*',
         ]);
 
         $middleware->trustProxies(at: '*');

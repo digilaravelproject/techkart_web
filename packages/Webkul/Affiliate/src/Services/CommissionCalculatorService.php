@@ -196,6 +196,79 @@ class CommissionCalculatorService
     }
 
     /**
+     * Resolve the rule and estimated commission for a product and price.
+     */
+    public function resolveRuleForProduct(int $productId, float $price): array
+    {
+        $productRule = $this->commissionRuleRepository->getRule('product', $productId);
+
+        if ($productRule) {
+            if ($productRule->is_excluded) {
+                return [
+                    'is_excluded' => true,
+                    'applied_tier' => 'product',
+                    'commission_type' => 'percentage',
+                    'commission_rate' => 0.0,
+                    'commission_amount' => 0.0,
+                ];
+            }
+
+            $amount = $productRule->commission_type === 'fixed'
+                ? (float) $productRule->commission_value
+                : ($price * (float) $productRule->commission_value) / 100;
+
+            return [
+                'is_excluded' => false,
+                'applied_tier' => 'product',
+                'commission_type' => $productRule->commission_type,
+                'commission_rate' => (float) $productRule->commission_value,
+                'commission_amount' => round(max(0, $amount), 2),
+            ];
+        }
+
+        $categoryRule = $this->resolveCategoryRule($productId);
+
+        if ($categoryRule) {
+            if ($categoryRule->is_excluded) {
+                return [
+                    'is_excluded' => true,
+                    'applied_tier' => 'category',
+                    'commission_type' => 'percentage',
+                    'commission_rate' => 0.0,
+                    'commission_amount' => 0.0,
+                ];
+            }
+
+            $amount = $categoryRule->commission_type === 'fixed'
+                ? (float) $categoryRule->commission_value
+                : ($price * (float) $categoryRule->commission_value) / 100;
+
+            return [
+                'is_excluded' => false,
+                'applied_tier' => 'category',
+                'commission_type' => $categoryRule->commission_type,
+                'commission_rate' => (float) $categoryRule->commission_value,
+                'commission_amount' => round(max(0, $amount), 2),
+            ];
+        }
+
+        $globalType = core()->getConfigData('affiliate.general.default_commission_type') ?: 'percentage';
+        $globalValue = (float) (core()->getConfigData('affiliate.general.default_commission_value') ?? 5.0);
+
+        $amount = $globalType === 'fixed'
+            ? $globalValue
+            : ($price * $globalValue) / 100;
+
+        return [
+            'is_excluded' => false,
+            'applied_tier' => 'global',
+            'commission_type' => $globalType,
+            'commission_rate' => $globalValue,
+            'commission_amount' => round(max(0, $amount), 2),
+        ];
+    }
+
+    /**
      * Check if the order is an anti-fraud self-referral.
      */
     public function isSelfReferral(Order $order, Affiliate $affiliate): bool
