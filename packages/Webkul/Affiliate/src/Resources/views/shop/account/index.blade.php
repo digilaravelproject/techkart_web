@@ -25,30 +25,41 @@
                 </div>
             </div>
 
-            @if ($wallet->available_balance >= $minWithdrawal)
-                <button
-                    type="button"
-                    onclick="document.getElementById('payoutModal').classList.remove('hidden')"
-                    class="rounded-xl bg-gradient-to-r from-[#c2955e] to-[#a0743e] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-95 active:scale-95"
-                >
-                    @lang('affiliate::app.shop.account.request-withdrawal')
-                </button>
-            @endif
+            <button
+                type="button"
+                onclick="document.getElementById('payoutModal').classList.remove('hidden')"
+                class="rounded-xl bg-gradient-to-r from-[#c2955e] to-[#a0743e] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-95 active:scale-95 flex items-center gap-1.5"
+            >
+                <span class="icon-wallet text-lg"></span>
+                @lang('affiliate::app.shop.account.request-withdrawal')
+            </button>
         </div>
 
         <!-- 1. Wallet Bento-Cards -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
             <!-- Available Balance -->
-            <div class="relative overflow-hidden rounded-2xl border border-[#c2955e]/30 bg-gradient-to-br from-[#fcf9f5] to-[#f4ebe0] p-5 shadow-sm dark:from-neutral-900 dark:to-neutral-800 dark:border-[#c2955e]/40">
-                <p class="text-xs font-semibold uppercase tracking-wider text-[#a0743e] dark:text-[#d4ab74]">
-                    @lang('affiliate::app.shop.account.available-balance')
-                </p>
-                <p class="mt-2 text-3xl font-black text-gray-900 dark:text-white">
-                    ₹{{ number_format($wallet->available_balance, 2) }}
-                </p>
-                <p class="mt-2 text-xs text-gray-500 dark:text-neutral-400">
-                    Ready for withdrawal to Bank/UPI
-                </p>
+            <div class="relative overflow-hidden rounded-2xl border border-[#c2955e]/30 bg-gradient-to-br from-[#fcf9f5] to-[#f4ebe0] p-5 shadow-sm dark:from-neutral-900 dark:to-neutral-800 dark:border-[#c2955e]/40 flex flex-col justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-[#a0743e] dark:text-[#d4ab74]">
+                        @lang('affiliate::app.shop.account.available-balance')
+                    </p>
+                    <p class="mt-2 text-3xl font-black text-gray-900 dark:text-white">
+                        ₹{{ number_format($wallet->available_balance, 2) }}
+                    </p>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-neutral-400">
+                        Ready for withdrawal to Bank/UPI
+                    </p>
+                </div>
+                <div class="mt-3 pt-3 border-t border-[#c2955e]/20 flex items-center justify-between">
+                    <span class="text-[11px] text-gray-500 dark:text-neutral-400">Min: ₹{{ number_format($minWithdrawal, 0) }}</span>
+                    <button
+                        type="button"
+                        onclick="document.getElementById('payoutModal').classList.remove('hidden')"
+                        class="text-xs font-bold text-[#c2955e] dark:text-[#d4ab74] hover:underline"
+                    >
+                        Request Payout &rarr;
+                    </button>
+                </div>
             </div>
 
             <!-- Pending Clearance -->
@@ -259,6 +270,13 @@
                 </button>
             </div>
 
+            @if ($wallet->available_balance < $minWithdrawal)
+                <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300">
+                    <p class="font-bold">Minimum Withdrawal Threshold: ₹{{ number_format($minWithdrawal, 2) }}</p>
+                    <p class="mt-1 text-[11px]">Your current available balance is ₹{{ number_format($wallet->available_balance, 2) }}. You need at least ₹{{ number_format($minWithdrawal, 2) }} to request a payout.</p>
+                </div>
+            @endif
+
             <form action="{{ route('shop.customers.account.affiliate.request_payout') }}" method="POST" class="mt-4 space-y-4">
                 @csrf
 
@@ -383,7 +401,8 @@
                     </button>
                     <button
                         type="submit"
-                        class="rounded-xl bg-[#c2955e] px-4 py-2 text-xs font-bold text-white shadow transition hover:bg-[#a0743e] active:scale-95"
+                        @if ($wallet->available_balance < $minWithdrawal) disabled title="Minimum balance required: ₹{{ number_format($minWithdrawal, 2) }}" @endif
+                        class="rounded-xl bg-[#c2955e] px-4 py-2 text-xs font-bold text-white shadow transition hover:bg-[#a0743e] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         @lang('affiliate::app.shop.account.submit-request')
                     </button>

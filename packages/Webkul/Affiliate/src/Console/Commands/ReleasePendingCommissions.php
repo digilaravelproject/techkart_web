@@ -3,6 +3,8 @@
 namespace Webkul\Affiliate\Console\Commands;
 
 use Illuminate\Console\Command;
+use Webkul\Affiliate\Repositories\CommissionRepository;
+use Webkul\Affiliate\Repositories\WalletTransactionRepository;
 use Webkul\Affiliate\Services\WalletTransactionService;
 
 class ReleasePendingCommissions extends Command
@@ -24,11 +26,27 @@ class ReleasePendingCommissions extends Command
     /**
      * Execute the console command.
      */
-    public function handle(WalletTransactionService $walletTransactionService): int
-    {
+    public function handle(
+        WalletTransactionService $walletTransactionService,
+        CommissionRepository $commissionRepository,
+        WalletTransactionRepository $transactionRepository
+    ): int {
         $force = (bool) $this->option('force');
 
         $count = $walletTransactionService->releaseMaturedCommissions($force);
+
+        $clearedOrderIds = $commissionRepository->getModel()
+            ->where('status', 'approved')
+            ->pluck('order_id')
+            ->filter()
+            ->unique();
+
+        if ($clearedOrderIds->isNotEmpty()) {
+            $transactionRepository->getModel()
+                ->whereIn('order_id', $clearedOrderIds)
+                ->where('status', 'pending')
+                ->delete();
+        }
 
         $this->info("Successfully released {$count} affiliate commissions into available wallet balances.");
 

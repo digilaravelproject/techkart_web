@@ -100,6 +100,11 @@ class WalletTransactionService
                     'title' => "Commission cleared for Order #{$orderId}",
                     'description' => "₹{$amount} moved to available balance.",
                 ]);
+
+                $this->transactionRepository->getModel()
+                    ->where('order_id', $commission->order_id)
+                    ->where('status', 'pending')
+                    ->delete();
             });
 
             $count++;
@@ -121,6 +126,11 @@ class WalletTransactionService
         if ($commissions->isEmpty()) {
             return 0;
         }
+
+        $this->transactionRepository->getModel()
+            ->where('order_id', $order->id)
+            ->where('status', 'pending')
+            ->delete();
 
         $count = 0;
 
