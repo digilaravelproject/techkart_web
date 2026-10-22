@@ -17,7 +17,7 @@
             <button
                 type="button"
                 class="primary-button"
-                onclick="document.getElementById('ruleModal').classList.remove('hidden')"
+                onclick="openModal()"
             >
                 @lang('affiliate::app.admin.rules.create-btn')
             </button>
@@ -28,113 +28,124 @@
         <x-admin::datagrid :src="route('admin.affiliate.rules.index')" />
     </div>
 
-    <!-- Create Custom Rule Modal -->
-    <div id="ruleModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative border border-gray-200 dark:border-gray-800 transition-all">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
-                <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-lg">
+    <!-- Create Custom Rule Modal Overlay -->
+    <div
+        id="ruleModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;"
+        onclick="if (event.target === this) closeModal()"
+    >
+        <div
+            style="max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; background: #ffffff; border-radius: 16px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3); border: 1px solid #e2e8f0; position: relative; margin: auto;"
+            class="dark:bg-gray-900 dark:border-gray-800"
+            onclick="event.stopPropagation()"
+        >
+            <!-- Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid #edf2f7;" class="dark:border-gray-800">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(194, 149, 94, 0.15); display: flex; align-items: center; justify-content: center; color: #a0743e; font-weight: bold; font-size: 16px;">
                         %
-                    </span>
+                    </div>
                     <div>
-                        <h3 class="text-base font-bold text-gray-900 dark:text-white">
+                        <h3 style="font-size: 16px; font-weight: 700; color: #1a202c; margin: 0;" class="dark:text-white">
                             Add Commission Rule Override
                         </h3>
-                        <p class="text-xs text-gray-500">
-                            Set custom commission for a category tree or specific product.
+                        <p style="font-size: 12px; color: #718096; margin: 2px 0 0 0;">
+                            Set custom commission for a category or specific product.
                         </p>
                     </div>
                 </div>
 
                 <button
                     type="button"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200 transition"
-                    onclick="document.getElementById('ruleModal').classList.add('hidden')"
+                    style="background: transparent; border: none; font-size: 20px; color: #a0aec0; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1;"
+                    onclick="closeModal()"
+                    onmouseover="this.style.color='#4a5568'"
+                    onmouseout="this.style.color='#a0aec0'"
                 >
                     ✕
                 </button>
             </div>
 
             <!-- Form -->
-            <form action="{{ route('admin.affiliate.rules.store') }}" method="POST" onsubmit="prepareEntityId()" class="mt-5 space-y-4">
+            <form action="{{ route('admin.affiliate.rules.store') }}" method="POST" onsubmit="prepareEntityId()" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;">
                 @csrf
 
                 <!-- Entity Type Selection -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
-                        Apply Rule To <span class="text-red-500">*</span>
+                    <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #4a5568; margin-bottom: 8px;" class="dark:text-gray-300">
+                        Apply Rule To <span style="color: #e53e3e;">*</span>
                     </label>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer transition hover:border-amber-500 bg-gray-50/50 dark:bg-gray-800/50">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid #e2e8f0; cursor: pointer; background: #f7fafc;" class="dark:bg-gray-800 dark:border-gray-700">
                             <input
                                 type="radio"
                                 name="entity_type"
                                 value="category"
                                 checked
                                 onchange="toggleEntityInputs(this.value)"
-                                class="text-amber-600 focus:ring-amber-500"
+                                style="width: 16px; height: 16px; accent-color: #c2955e;"
                             />
                             <div>
-                                <p class="text-sm font-semibold text-gray-800 dark:text-white">Category</p>
-                                <p class="text-xs text-gray-500">Applies to category and child items</p>
+                                <span style="font-size: 13px; font-weight: 600; color: #2d3748; display: block;" class="dark:text-white">Category</span>
+                                <span style="font-size: 11px; color: #718096;">Applies to category and child items</span>
                             </div>
                         </label>
 
-                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer transition hover:border-amber-500 bg-gray-50/50 dark:bg-gray-800/50">
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid #e2e8f0; cursor: pointer; background: #f7fafc;" class="dark:bg-gray-800 dark:border-gray-700">
                             <input
                                 type="radio"
                                 name="entity_type"
                                 value="product"
                                 onchange="toggleEntityInputs(this.value)"
-                                class="text-amber-600 focus:ring-amber-500"
+                                style="width: 16px; height: 16px; accent-color: #c2955e;"
                             />
                             <div>
-                                <p class="text-sm font-semibold text-gray-800 dark:text-white">Product</p>
-                                <p class="text-xs text-gray-500">Specific single product override</p>
+                                <span style="font-size: 13px; font-weight: 600; color: #2d3748; display: block;" class="dark:text-white">Product</span>
+                                <span style="font-size: 11px; color: #718096;">Specific single product override</span>
                             </div>
                         </label>
                     </div>
                 </div>
 
-                <!-- Category Dropdown Group -->
+                <!-- Category Group -->
                 <div id="category_select_group">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
-                        Select Category <span class="text-red-500">*</span>
+                    <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #4a5568; margin-bottom: 6px;" class="dark:text-gray-300">
+                        Select Category <span style="color: #e53e3e;">*</span>
                     </label>
                     <select
                         name="category_entity_id"
                         id="category_entity_id"
-                        class="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm text-gray-800 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+                        style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; background: #ffffff;"
+                        class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                     >
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
                     </select>
-                    <p class="mt-1 text-xs text-gray-500">
-                        Tip: Choosing <strong>Root</strong> applies to all products across your store.
+                    <p style="font-size: 11px; color: #718096; margin: 6px 0 0 0;">
+                        💡 <strong>Root</strong> category rules apply across the entire catalog.
                     </p>
                 </div>
 
-                <!-- Product Dropdown Group -->
-                <div id="product_input_group" class="hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
-                        Select Product <span class="text-red-500">*</span>
+                <!-- Product Group -->
+                <div id="product_input_group" style="display: none;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #4a5568; margin-bottom: 6px;" class="dark:text-gray-300">
+                        Select Product <span style="color: #e53e3e;">*</span>
                     </label>
-
                     <input
                         type="text"
                         id="product_search_filter"
-                        placeholder="Type to filter products..."
+                        placeholder="Search product by name..."
                         onkeyup="filterProductDropdown(this.value)"
-                        class="mb-2 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 text-xs text-gray-800 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                        style="width: 100%; height: 38px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px; margin-bottom: 8px; box-sizing: border-box;"
+                        class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                     />
-
                     <select
                         name="product_entity_id"
                         id="product_entity_id"
-                        class="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm text-gray-800 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+                        style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; background: #ffffff;"
+                        class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                     >
                         @foreach ($products as $prod)
                             <option value="{{ $prod->id }}">[ID #{{ $prod->id }}] {{ $prod->name }}</option>
@@ -146,17 +157,18 @@
                 <input type="hidden" name="entity_id" id="entity_id" value="{{ $categories[0]?->id ?? 1 }}" />
 
                 <!-- Commission Type & Value Grid -->
-                <div class="grid grid-cols-2 gap-3">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
-                            Commission Type <span class="text-red-500">*</span>
+                        <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #4a5568; margin-bottom: 6px;" class="dark:text-gray-300">
+                            Commission Type <span style="color: #e53e3e;">*</span>
                         </label>
                         <select
                             name="commission_type"
                             id="commission_type"
                             required
                             onchange="updateValueUI(this.value)"
-                            class="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm text-gray-800 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+                            style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; background: #ffffff;"
+                            class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                         >
                             <option value="percentage">Percentage (%)</option>
                             <option value="fixed">Fixed Amount (₹)</option>
@@ -164,10 +176,10 @@
                     </div>
 
                     <div>
-                        <label id="value_label" class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
-                            Commission Rate (%) <span class="text-red-500">*</span>
+                        <label id="value_label" style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #4a5568; margin-bottom: 6px;" class="dark:text-gray-300">
+                            Commission Rate (%) <span style="color: #e53e3e;">*</span>
                         </label>
-                        <div class="relative">
+                        <div style="position: relative; display: flex; align-items: center;">
                             <input
                                 type="number"
                                 step="0.01"
@@ -176,11 +188,13 @@
                                 id="commission_value"
                                 required
                                 placeholder="10.00"
-                                class="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2.5 pr-10 text-sm text-gray-800 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 42px 0 12px; font-size: 14px; box-sizing: border-box;"
+                                class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                             />
                             <span
                                 id="unit_badge"
-                                class="absolute right-3 top-2.5 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md"
+                                style="position: absolute; right: 10px; font-weight: bold; font-size: 12px; color: #718096; background: #edf2f7; padding: 2px 7px; border-radius: 5px; pointer-events: none;"
+                                class="dark:bg-gray-700 dark:text-gray-300"
                             >
                                 %
                             </span>
@@ -188,43 +202,47 @@
                     </div>
                 </div>
 
-                <!-- Dynamic Helper Text -->
-                <p id="calc_hint" class="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-2.5 rounded-xl border border-amber-200/60 dark:border-amber-900/40">
+                <!-- Helper Hint Box -->
+                <div id="calc_hint" style="background-color: #fffbeb; border: 1px solid #fef3c7; color: #b45309; padding: 10px 14px; border-radius: 10px; font-size: 12px; line-height: 1.4;">
                     ℹ️ Affiliates will earn a <strong>percentage (%)</strong> of the product sale price.
-                </p>
+                </div>
 
                 <!-- Exclusion Option -->
-                <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-3 bg-gray-50/50 dark:bg-gray-800/40">
-                    <label class="flex items-center gap-3 cursor-pointer">
+                <div style="background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;" class="dark:bg-gray-800 dark:border-gray-700">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                         <input
                             type="checkbox"
                             name="is_excluded"
                             id="is_excluded"
                             value="1"
                             onchange="toggleExcluded(this.checked)"
-                            class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                            style="width: 16px; height: 16px; accent-color: #c2955e;"
                         />
                         <div>
-                            <p class="text-sm font-semibold text-gray-800 dark:text-white">
+                            <span style="font-size: 13px; font-weight: 600; color: #2d3748; display: block;" class="dark:text-white">
                                 Exclude from Referral Program (0% commission)
-                            </p>
-                            <p class="text-xs text-gray-500">
+                            </span>
+                            <span style="font-size: 11px; color: #718096;">
                                 Disables commission payouts for this category or product.
-                            </p>
+                            </span>
                         </div>
                     </label>
                 </div>
 
-                <!-- Modal Actions -->
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <!-- Footer Buttons -->
+                <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 14px; border-top: 1px solid #edf2f7;" class="dark:border-gray-800">
                     <button
                         type="button"
                         class="secondary-button"
-                        onclick="document.getElementById('ruleModal').classList.add('hidden')"
+                        onclick="closeModal()"
                     >
                         Cancel
                     </button>
-                    <button type="submit" class="primary-button" onclick="prepareEntityId()">
+                    <button
+                        type="submit"
+                        class="primary-button"
+                        onclick="prepareEntityId()"
+                    >
                         Save Commission Rule
                     </button>
                 </div>
@@ -234,16 +252,30 @@
 
     @pushOnce('scripts')
         <script>
+            function openModal() {
+                var modal = document.getElementById('ruleModal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+            }
+
+            function closeModal() {
+                var modal = document.getElementById('ruleModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
             function toggleEntityInputs(type) {
                 var catGroup = document.getElementById('category_select_group');
                 var prodGroup = document.getElementById('product_input_group');
 
                 if (type === 'category') {
-                    catGroup.classList.remove('hidden');
-                    prodGroup.classList.add('hidden');
+                    catGroup.style.display = 'block';
+                    prodGroup.style.display = 'none';
                 } else {
-                    catGroup.classList.add('hidden');
-                    prodGroup.classList.remove('hidden');
+                    catGroup.style.display = 'none';
+                    prodGroup.style.display = 'block';
                 }
             }
 
@@ -254,12 +286,12 @@
                 var input = document.getElementById('commission_value');
 
                 if (type === 'percentage') {
-                    label.innerHTML = 'Commission Rate (%) <span class="text-red-500">*</span>';
+                    label.innerHTML = 'Commission Rate (%) <span style="color: #e53e3e;">*</span>';
                     badge.innerText = '%';
                     input.placeholder = '10.00';
                     hint.innerHTML = 'ℹ️ Affiliates will earn a <strong>percentage (%)</strong> of the product sale price.';
                 } else {
-                    label.innerHTML = 'Fixed Amount (₹) <span class="text-red-500">*</span>';
+                    label.innerHTML = 'Fixed Amount (₹) <span style="color: #e53e3e;">*</span>';
                     badge.innerText = '₹';
                     input.placeholder = '150.00';
                     hint.innerHTML = 'ℹ️ Affiliates will earn a <strong>flat rupee amount (₹)</strong> on every item sold.';
