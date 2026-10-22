@@ -29,7 +29,39 @@ class CommissionRuleController extends Controller
 
         $categories = $this->categoryRepository->all();
 
-        return view('affiliate::admin.rules.index', compact('categories'));
+        $categoryTree = [];
+        foreach ($categories as $cat) {
+            $name = $cat->name ?? 'Category #'.$cat->id;
+            $path = [$name];
+            $curr = $cat;
+            while ($curr && $curr->parent_id) {
+                $parent = $categories->firstWhere('id', $curr->parent_id);
+                if ($parent) {
+                    array_unshift($path, $parent->name ?? 'Category #'.$parent->id);
+                    $curr = $parent;
+                } else {
+                    break;
+                }
+            }
+            $categoryTree[] = (object) [
+                'id' => $cat->id,
+                'name' => implode(' > ', $path),
+            ];
+        }
+
+        usort($categoryTree, fn ($a, $b) => strcmp($a->name, $b->name));
+
+        $products = \DB::table('product_flat')
+            ->select('product_id as id', 'name')
+            ->where('locale', app()->getLocale())
+            ->whereNotNull('name')
+            ->orderBy('name')
+            ->get();
+
+        return view('affiliate::admin.rules.index', [
+            'categories' => $categoryTree,
+            'products' => $products,
+        ]);
     }
 
     /**
