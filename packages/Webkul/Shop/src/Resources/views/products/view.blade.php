@@ -450,24 +450,24 @@
                                 {!! view_render_event('bagisto.shop.products.view.additional_actions.before', ['product' => $product]) !!}
 
                                 <!-- Share Buttons -->
-                                <div class="mt-10 flex gap-9 max-md:mt-4 max-md:flex-wrap max-sm:justify-center max-sm:gap-3">
+                                <div class="mt-6 flex flex-wrap items-center gap-4">
                                     {!! view_render_event('bagisto.shop.products.view.compare.before', ['product' => $product]) !!}
 
-                                    <div
-                                        class="flex cursor-pointer items-center justify-center gap-2.5 max-sm:gap-1.5 max-sm:text-base"
-                                        role="button"
-                                        tabindex="0"
-                                        @click="is_buy_now=0; addToCompare({{ $product->id }})"
-                                    >
-                                        @if (core()->getConfigData('catalog.products.settings.compare_option'))
+                                    @if (core()->getConfigData('catalog.products.settings.compare_option'))
+                                        <div
+                                            class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-xs font-semibold text-gray-700 shadow-xs transition-all hover:border-[#c2955e] hover:text-[#a0743e] hover:bg-[#FAF7F2] active:scale-95"
+                                            role="button"
+                                            tabindex="0"
+                                            @click="is_buy_now=0; addToCompare({{ $product->id }})"
+                                        >
                                             <span
-                                                class="icon-compare text-2xl"
+                                                class="icon-compare text-lg"
                                                 role="presentation"
                                             ></span>
 
                                             @lang('shop::app.products.view.compare')
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @endif
 
                                     {!! view_render_event('bagisto.shop.products.view.compare.after', ['product' => $product]) !!}
                                 </div>
