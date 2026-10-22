@@ -12,12 +12,22 @@
 
     $catRule = null;
     if (! $prodRule) {
-        $categoryIds = $product->categories()->pluck('categories.id')->toArray();
-        if (! empty($categoryIds)) {
+        $allCategoryIds = [];
+        foreach ($product->categories as $category) {
+            $allCategoryIds[] = (int) $category->id;
+            $curr = $category;
+            while ($curr && $curr->parent_id) {
+                $allCategoryIds[] = (int) $curr->parent_id;
+                $curr = $curr->parent;
+            }
+        }
+        $allCategoryIds = array_values(array_unique(array_filter($allCategoryIds)));
+
+        if (! empty($allCategoryIds)) {
             $catRule = $ruleRepo->findWhere([
                 'entity_type' => 'category',
                 'status' => 1,
-            ])->whereIn('entity_id', $categoryIds)->sortByDesc('commission_value')->first();
+            ])->whereIn('entity_id', $allCategoryIds)->sortByDesc('commission_value')->first();
         }
     }
 

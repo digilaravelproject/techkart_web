@@ -168,16 +168,25 @@ class CommissionCalculatorService
             return null;
         }
 
-        $categoryIds = $product->categories()->pluck('categories.id')->toArray();
+        $allCategoryIds = [];
+        foreach ($product->categories as $category) {
+            $allCategoryIds[] = (int) $category->id;
+            $curr = $category;
+            while ($curr && $curr->parent_id) {
+                $allCategoryIds[] = (int) $curr->parent_id;
+                $curr = $curr->parent;
+            }
+        }
+        $allCategoryIds = array_values(array_unique(array_filter($allCategoryIds)));
 
-        if (empty($categoryIds)) {
+        if (empty($allCategoryIds)) {
             return null;
         }
 
         $rules = $this->commissionRuleRepository->findWhere([
             'entity_type' => 'category',
             'status' => 1,
-        ])->whereIn('entity_id', $categoryIds);
+        ])->whereIn('entity_id', $allCategoryIds);
 
         if ($rules->isEmpty()) {
             return null;

@@ -104,8 +104,8 @@ class CommissionRuleDataGrid extends DataGrid
                     return '<span class="text-red-500 font-bold">0% (Excluded)</span>';
                 }
 
-                if ($row->commission_type === 'percentage') {
-                    return '<span class="font-bold text-emerald-600">'.$row->commission_value.'%</span>';
+                if (strtolower($row->commission_type) === 'percentage') {
+                    return '<span class="font-bold text-emerald-600">'.((float) $row->commission_value).'%</span>';
                 }
 
                 return '<span class="font-bold text-emerald-600">₹'.number_format((float) $row->commission_value, 2).'</span>';
