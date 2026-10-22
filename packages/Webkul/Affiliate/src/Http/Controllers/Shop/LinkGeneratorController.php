@@ -21,7 +21,7 @@ class LinkGeneratorController extends Controller
      */
     public function generate(): JsonResponse
     {
-        $this->validate(request(), [
+        request()->validate([
             'url' => 'required|url',
         ]);
 

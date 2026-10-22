@@ -27,7 +27,7 @@ class CommissionRuleController extends Controller
             return datagrid(CommissionRuleDataGrid::class)->process();
         }
 
-        $categories = $this->categoryRepository->getVisibleCategoryTree();
+        $categories = $this->categoryRepository->all();
 
         return view('affiliate::admin.rules.index', compact('categories'));
     }
@@ -37,7 +37,11 @@ class CommissionRuleController extends Controller
      */
     public function store()
     {
-        $this->validate(request(), [
+        $entityId = request('entity_id') ?: (request('entity_type') === 'category' ? request('category_entity_id') : request('product_entity_id'));
+
+        request()->merge(['entity_id' => $entityId]);
+
+        request()->validate([
             'entity_type' => 'required|in:category,product',
             'entity_id' => 'required|integer',
             'commission_type' => 'required|in:percentage,fixed',
@@ -48,11 +52,11 @@ class CommissionRuleController extends Controller
 
         $data = [
             'entity_type' => request('entity_type'),
-            'entity_id' => request('entity_id'),
+            'entity_id' => (int) request('entity_id'),
             'commission_type' => request('commission_type'),
-            'commission_value' => request('commission_value'),
-            'is_excluded' => request('is_excluded', 0),
-            'status' => request('status', 1),
+            'commission_value' => (float) request('commission_value'),
+            'is_excluded' => (bool) request('is_excluded', false),
+            'status' => (bool) request('status', true),
         ];
 
         $existing = $this->commissionRuleRepository->findOneWhere([

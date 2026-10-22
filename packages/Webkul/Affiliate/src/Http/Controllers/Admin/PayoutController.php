@@ -35,7 +35,7 @@ class PayoutController extends Controller
      */
     public function complete(int $id)
     {
-        $this->validate(request(), [
+        request()->validate([
             'transaction_reference' => 'required|string|max:100',
             'admin_notes' => 'nullable|string',
         ]);
@@ -67,7 +67,7 @@ class PayoutController extends Controller
      */
     public function reject(int $id)
     {
-        $this->validate(request(), [
+        request()->validate([
             'reason' => 'required|string|max:500',
         ]);
 

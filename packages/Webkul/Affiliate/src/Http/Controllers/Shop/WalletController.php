@@ -32,7 +32,7 @@ class WalletController extends Controller
 
         $minAmount = (float) (core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
 
-        $this->validate(request(), [
+        request()->validate([
             'amount' => 'required|numeric|min:'.$minAmount.'|max:'.$wallet->available_balance,
             'payout_method' => 'required|in:upi,bank_transfer',
             'upi_id' => 'required_if:payout_method,upi|nullable|string|max:100',
