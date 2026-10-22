@@ -20,7 +20,7 @@ class EventServiceProvider extends ServiceProvider
 
         Event::listen('sales.refund.save.after', 'Webkul\Affiliate\Listeners\OrderPlacementListener@handleRefund');
 
-        Event::listen('bagisto.shop.products.view.add_to_cart.after', function ($viewRenderEventManager) {
+        Event::listen('bagisto.shop.products.view.additional_actions.before', function ($viewRenderEventManager) {
             $viewRenderEventManager->addTemplate('affiliate::shop.products.share-earn');
         });
     }
