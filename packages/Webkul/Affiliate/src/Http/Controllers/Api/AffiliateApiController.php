@@ -38,9 +38,19 @@ class AffiliateApiController extends Controller
      */
     protected function resolveCustomer()
     {
-        $customer = Auth::guard('sanctum')->user()
-            ?? Auth::guard('customer')->user()
-            ?? Auth::guard('api')->user();
+        $customer = null;
+
+        try {
+            $customer = Auth::guard('sanctum')->user();
+        } catch (\Throwable $e) {
+        }
+
+        if (! $customer) {
+            try {
+                $customer = Auth::guard('customer')->user();
+            } catch (\Throwable $e) {
+            }
+        }
 
         if ($customer) {
             return $customer;
