@@ -25,6 +25,13 @@
         name="viewport"
         content="width=device-width, initial-scale=1"
     >
+
+    @if (request()->isSecure() || request()->header('X-Forwarded-Proto') === 'https' || str_starts_with((string) config('app.url'), 'https://') || config('app.force_https') || str_contains((string) request()->getHost(), 'benzoo.in'))
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="upgrade-insecure-requests"
+        >
+    @endif
     <meta
         name="base-url"
         content="{{ url()->to('/') }}"
