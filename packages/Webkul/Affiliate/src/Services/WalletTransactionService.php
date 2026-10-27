@@ -229,6 +229,10 @@ class WalletTransactionService
             $wallet->locked_balance += $amount;
             $wallet->save();
 
+            $affiliate->payout_method = $method;
+            $affiliate->payout_details = $details;
+            $affiliate->save();
+
             $payout = $this->payoutRepository->create([
                 'affiliate_id' => $affiliate->id,
                 'payout_number' => $this->payoutRepository->generatePayoutNumber(),

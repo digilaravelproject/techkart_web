@@ -159,6 +159,79 @@
             </div>
         </div>
 
+        @php
+            $savedPayoutMethod = $affiliate->payout_method ?? 'upi';
+            $pDetails = is_string($affiliate->payout_details) ? json_decode($affiliate->payout_details, true) : (array) ($affiliate->payout_details ?? []);
+        @endphp
+
+        <!-- Payout Settings Card (Bank / UPI) -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 mb-6">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-3 mb-4">
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span class="icon-payment text-lg text-[#c2955e]"></span>
+                        Payout Destination (Bank / UPI)
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-neutral-400">
+                        Commission withdrawals will be sent to these account details.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onclick="document.getElementById('payoutSettingsModal').classList.remove('hidden')"
+                    class="rounded-xl border border-[#c2955e] px-3 py-1.5 text-xs font-bold text-[#c2955e] transition hover:bg-[#c2955e] hover:text-white"
+                >
+                    {{ !empty($affiliate->payout_details) ? 'Edit Details' : '+ Add Details' }}
+                </button>
+            </div>
+
+            @if (!empty($affiliate->payout_details))
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="p-3.5 rounded-xl border border-emerald-100 bg-emerald-50/50 dark:border-emerald-950/40 dark:bg-emerald-950/20">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Active Method</span>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white mt-0.5 uppercase">
+                            {{ $savedPayoutMethod === 'bank_transfer' ? 'Direct Bank Transfer' : 'UPI Transfer' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl border border-gray-100 bg-gray-50 dark:border-neutral-800 dark:bg-neutral-800/50">
+                        @if ($savedPayoutMethod === 'bank_transfer')
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">Bank Account</span>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white mt-0.5">
+                                {{ $pDetails['account_holder'] ?? '' }} • A/C: <span class="font-mono">{{ $pDetails['account_number'] ?? '' }}</span>
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-neutral-400 font-mono mt-0.5">
+                                IFSC: {{ $pDetails['ifsc_code'] ?? '' }} ({{ $pDetails['bank_name'] ?? '' }})
+                            </p>
+                        @else
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">UPI ID</span>
+                            <p class="text-sm font-bold font-mono text-gray-900 dark:text-white mt-0.5">
+                                {{ $pDetails['upi_id'] ?? 'Not set' }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            @else
+                <div class="flex items-center justify-between p-3.5 rounded-xl border border-amber-200 bg-amber-50/60 dark:border-amber-900/40 dark:bg-amber-950/20">
+                    <div>
+                        <p class="text-xs font-bold text-amber-800 dark:text-amber-300">
+                            No Payout Destination Added
+                        </p>
+                        <p class="text-[11px] text-amber-700/80 dark:text-amber-400/80 mt-0.5">
+                            Add your UPI ID or Bank account details to receive your commission payouts directly.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="document.getElementById('payoutSettingsModal').classList.remove('hidden')"
+                        class="rounded-xl bg-[#c2955e] px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#a0743e]"
+                    >
+                        + Add Now
+                    </button>
+                </div>
+            @endif
+        </div>
+
         <!-- 3. Performance Analytics -->
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-6">
             <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 text-center">
@@ -310,13 +383,13 @@
                         onchange="toggleMethodInputs(this.value)"
                         class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#c2955e]"
                     >
-                        <option value="upi">UPI Transfer (Instant)</option>
-                        <option value="bank_transfer">Direct Bank Transfer (NEFT/IMPS)</option>
+                        <option value="upi" {{ $savedPayoutMethod === 'upi' ? 'selected' : '' }}>UPI Transfer (Instant)</option>
+                        <option value="bank_transfer" {{ $savedPayoutMethod === 'bank_transfer' ? 'selected' : '' }}>Direct Bank Transfer (NEFT/IMPS)</option>
                     </select>
                 </div>
 
                 <!-- UPI Input -->
-                <div id="upi_block" class="space-y-2">
+                <div id="upi_block" class="{{ $savedPayoutMethod === 'bank_transfer' ? 'hidden' : '' }} space-y-2">
                     <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300">
                         @lang('affiliate::app.shop.account.upi')
                     </label>
@@ -324,13 +397,14 @@
                         type="text"
                         name="upi_id"
                         id="upi_id"
+                        value="{{ $pDetails['upi_id'] ?? '' }}"
                         placeholder="@lang('affiliate::app.shop.account.upi-placeholder')"
                         class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-[#c2955e]"
                     />
                 </div>
 
                 <!-- Bank Input -->
-                <div id="bank_block" class="hidden space-y-3">
+                <div id="bank_block" class="{{ $savedPayoutMethod === 'bank_transfer' ? '' : 'hidden' }} space-y-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300 mb-1">
                             @lang('affiliate::app.shop.account.account-holder')
@@ -338,6 +412,7 @@
                         <input
                             type="text"
                             name="account_holder"
+                            value="{{ $pDetails['account_holder'] ?? '' }}"
                             placeholder="Name as per Bank Account"
                             class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white"
                         />
@@ -349,6 +424,7 @@
                         <input
                             type="text"
                             name="account_number"
+                            value="{{ $pDetails['account_number'] ?? '' }}"
                             placeholder="Bank Account Number"
                             class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white font-mono"
                         />
@@ -361,6 +437,7 @@
                             <input
                                 type="text"
                                 name="bank_name"
+                                value="{{ $pDetails['bank_name'] ?? '' }}"
                                 placeholder="e.g. HDFC Bank"
                                 class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white"
                             />
@@ -372,6 +449,7 @@
                             <input
                                 type="text"
                                 name="ifsc_code"
+                                value="{{ $pDetails['ifsc_code'] ?? '' }}"
                                 placeholder="e.g. HDFC0001234"
                                 class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white font-mono uppercase"
                             />
@@ -411,6 +489,136 @@
         </div>
     </div>
 
+    <!-- Dedicated Payout Settings Modal (Bank / UPI) -->
+    <div
+        id="payoutSettingsModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm hidden"
+    >
+        <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-neutral-800">
+                <div class="flex items-center gap-2">
+                    <span class="icon-payment text-xl text-[#c2955e]"></span>
+                    <h3 class="text-base font-bold text-gray-900 dark:text-white">
+                        Payout Destination Settings
+                    </h3>
+                </div>
+                <button
+                    type="button"
+                    onclick="document.getElementById('payoutSettingsModal').classList.add('hidden')"
+                    class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-neutral-800"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <form method="POST" action="{{ route('shop.customers.account.affiliate.payout_settings') }}" class="mt-4 space-y-4">
+                @csrf
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                        Select Payout Mode
+                    </label>
+                    <select
+                        name="payout_method"
+                        id="settings_payout_method"
+                        required
+                        onchange="toggleSettingsModalMethodInputs(this.value)"
+                        class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#c2955e]"
+                    >
+                        <option value="upi" {{ $savedPayoutMethod === 'upi' ? 'selected' : '' }}>UPI Transfer (Instant to GooglePay, PhonePe, Paytm)</option>
+                        <option value="bank_transfer" {{ $savedPayoutMethod === 'bank_transfer' ? 'selected' : '' }}>Direct Bank Transfer (NEFT/IMPS)</option>
+                    </select>
+                </div>
+
+                <!-- Settings UPI Input -->
+                <div id="settings_upi_block" class="{{ $savedPayoutMethod === 'bank_transfer' ? 'hidden' : '' }} space-y-2">
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300">
+                        UPI ID (VPA)
+                    </label>
+                    <input
+                        type="text"
+                        name="upi_id"
+                        id="settings_upi_id"
+                        value="{{ $pDetails['upi_id'] ?? '' }}"
+                        placeholder="e.g. mobile@okhdfcbank or user@paytm"
+                        class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-[#c2955e]"
+                    />
+                    <p class="text-[11px] text-gray-400">Withdrawals will be transferred directly to this UPI Virtual Payment Address.</p>
+                </div>
+
+                <!-- Settings Bank Input -->
+                <div id="settings_bank_block" class="{{ $savedPayoutMethod === 'bank_transfer' ? '' : 'hidden' }} space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                            Account Holder Name
+                        </label>
+                        <input
+                            type="text"
+                            name="account_holder"
+                            value="{{ $pDetails['account_holder'] ?? '' }}"
+                            placeholder="Full name as per bank account"
+                            class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                            Bank Account Number
+                        </label>
+                        <input
+                            type="text"
+                            name="account_number"
+                            value="{{ $pDetails['account_number'] ?? '' }}"
+                            placeholder="Enter bank account number"
+                            class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white font-mono"
+                        />
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                                Bank Name
+                            </label>
+                            <input
+                                type="text"
+                                name="bank_name"
+                                value="{{ $pDetails['bank_name'] ?? '' }}"
+                                placeholder="e.g. HDFC Bank, SBI"
+                                class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-neutral-300 mb-1">
+                                IFSC Code
+                            </label>
+                            <input
+                                type="text"
+                                name="ifsc_code"
+                                value="{{ $pDetails['ifsc_code'] ?? '' }}"
+                                placeholder="e.g. HDFC0001234"
+                                class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-gray-900 dark:text-white font-mono uppercase"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-gray-100 dark:border-neutral-800">
+                    <button
+                        type="button"
+                        class="rounded-xl border border-gray-300 dark:border-neutral-700 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-neutral-300 hover:bg-gray-50"
+                        onclick="document.getElementById('payoutSettingsModal').classList.add('hidden')"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="rounded-xl bg-[#c2955e] px-4 py-2 text-xs font-bold text-white shadow transition hover:bg-[#a0743e] active:scale-95"
+                    >
+                        Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @pushOnce('scripts')
         <script>
             function copyToClipboard(text) {
@@ -424,6 +632,19 @@
             function toggleMethodInputs(val) {
                 var upiBlock = document.getElementById('upi_block');
                 var bankBlock = document.getElementById('bank_block');
+
+                if (val === 'upi') {
+                    upiBlock.classList.remove('hidden');
+                    bankBlock.classList.add('hidden');
+                } else {
+                    upiBlock.classList.add('hidden');
+                    bankBlock.classList.remove('hidden');
+                }
+            }
+
+            function toggleSettingsModalMethodInputs(val) {
+                var upiBlock = document.getElementById('settings_upi_block');
+                var bankBlock = document.getElementById('settings_bank_block');
 
                 if (val === 'upi') {
                     upiBlock.classList.remove('hidden');

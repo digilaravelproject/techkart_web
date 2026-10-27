@@ -156,10 +156,14 @@ class HandleAffiliateGraphQL
                 return $this->graphQLService->generateLink($url, $productId);
 
             case 'updateAffiliatePayoutSettings':
-                return $this->graphQLService->updatePayoutSettings($variables);
+                $args = $this->extractArgumentsFromQuery($operation, $query, $variables);
+
+                return $this->graphQLService->updatePayoutSettings($args);
 
             case 'requestAffiliatePayout':
-                return $this->graphQLService->requestPayout($variables);
+                $args = $this->extractArgumentsFromQuery($operation, $query, $variables);
+
+                return $this->graphQLService->requestPayout($args);
 
             case 'trackAffiliateReferral':
                 $code = (string) ($variables['referralCode'] ?? ($variables['referral_code'] ?? ''));
@@ -172,5 +176,46 @@ class HandleAffiliateGraphQL
             default:
                 throw new \Exception("Unsupported affiliate operation: {$operation}");
         }
+    }
+
+    /**
+     * Extract operation arguments from both variables and inline query syntax.
+     */
+    protected function extractArgumentsFromQuery(string $operation, string $query, array $variables): array
+    {
+        $args = $variables;
+
+        if (preg_match('/\b'.preg_quote($operation, '/').'\s*\(([^)]+)\)/s', $query, $matches)) {
+            $argString = $matches[1];
+
+            if (preg_match_all('/([a-zA-Z0-9_]+)\s*:\s*(?:"([^"]*)"|\'([^\']*)\'|([0-9]+(?:\.[0-9]+)?)|([a-zA-Z0-9_]+))/s', $argString, $paramMatches, PREG_SET_ORDER)) {
+                foreach ($paramMatches as $p) {
+                    $key = $p[1];
+
+                    if (isset($p[2]) && $p[2] !== '') {
+                        $val = $p[2];
+                    } elseif (isset($p[3]) && $p[3] !== '') {
+                        $val = $p[3];
+                    } elseif (isset($p[4]) && $p[4] !== '') {
+                        $val = is_numeric($p[4]) ? (str_contains($p[4], '.') ? (float) $p[4] : (int) $p[4]) : $p[4];
+                    } elseif (isset($p[5])) {
+                        $val = match (strtolower($p[5])) {
+                            'true' => true,
+                            'false' => false,
+                            'null' => null,
+                            default => $p[5],
+                        };
+                    } else {
+                        $val = null;
+                    }
+
+                    if (! array_key_exists($key, $args)) {
+                        $args[$key] = $val;
+                    }
+                }
+            }
+        }
+
+        return $args;
     }
 }

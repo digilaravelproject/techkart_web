@@ -275,6 +275,22 @@ class AffiliateApiController extends Controller
 
         $affiliate = $this->affiliateRepository->getOrCreateForCustomer($customer->id);
 
+        $method = $request->input('payout_method') ?? $request->input('payoutMethod') ?? 'upi';
+        $upiId = $request->input('upi_id') ?? $request->input('upiId');
+        $accountHolder = $request->input('account_holder') ?? $request->input('accountHolder');
+        $accountNumber = $request->input('account_number') ?? $request->input('accountNumber');
+        $bankName = $request->input('bank_name') ?? $request->input('bankName');
+        $ifscCode = $request->input('ifsc_code') ?? $request->input('ifscCode');
+
+        $request->merge([
+            'payout_method' => $method,
+            'upi_id' => $upiId,
+            'account_holder' => $accountHolder,
+            'account_number' => $accountNumber,
+            'bank_name' => $bankName,
+            'ifsc_code' => $ifscCode,
+        ]);
+
         $request->validate([
             'payout_method' => 'required|in:upi,bank_transfer',
             'upi_id' => 'required_if:payout_method,upi|nullable|string|max:100',
@@ -420,6 +436,22 @@ class AffiliateApiController extends Controller
         $wallet = $this->walletRepository->getByAffiliateId($affiliate->id);
 
         $minAmount = (float) (core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
+
+        $method = $request->input('payout_method') ?? $request->input('payoutMethod');
+        $upiId = $request->input('upi_id') ?? $request->input('upiId');
+        $accountHolder = $request->input('account_holder') ?? $request->input('accountHolder');
+        $accountNumber = $request->input('account_number') ?? $request->input('accountNumber');
+        $bankName = $request->input('bank_name') ?? $request->input('bankName');
+        $ifscCode = $request->input('ifsc_code') ?? $request->input('ifscCode');
+
+        $request->merge(array_filter([
+            'payout_method' => $method,
+            'upi_id' => $upiId,
+            'account_holder' => $accountHolder,
+            'account_number' => $accountNumber,
+            'bank_name' => $bankName,
+            'ifsc_code' => $ifscCode,
+        ], fn ($v) => ! is_null($v)));
 
         $request->validate([
             'amount' => 'required|numeric|min:'.$minAmount.'|max:'.$wallet->available_balance,
