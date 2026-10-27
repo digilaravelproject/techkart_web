@@ -229,9 +229,9 @@ class AffiliateGraphQLService
         $affiliate = $this->affiliateRepository->getOrCreateForCustomer($customer->id);
 
         $paginator = $this->transactionRepository
-            ->scopeQuery(function ($query) use ($affiliate) {
-                return $query->where('affiliate_id', $affiliate->id)->orderBy('id', 'desc');
-            })
+            ->getModel()
+            ->where('affiliate_id', $affiliate->id)
+            ->orderBy('id', 'desc')
             ->paginate($limit, ['*'], 'page', $page);
 
         return [
@@ -281,10 +281,10 @@ class AffiliateGraphQLService
         $affiliate = $this->affiliateRepository->getOrCreateForCustomer($customer->id);
 
         $paginator = $this->commissionRepository
+            ->getModel()
             ->with(['order'])
-            ->scopeQuery(function ($query) use ($affiliate) {
-                return $query->where('affiliate_id', $affiliate->id)->orderBy('id', 'desc');
-            })
+            ->where('affiliate_id', $affiliate->id)
+            ->orderBy('id', 'desc')
             ->paginate($limit, ['*'], 'page', $page);
 
         return [
@@ -340,9 +340,9 @@ class AffiliateGraphQLService
         $affiliate = $this->affiliateRepository->getOrCreateForCustomer($customer->id);
 
         $paginator = $this->payoutRepository
-            ->scopeQuery(function ($query) use ($affiliate) {
-                return $query->where('affiliate_id', $affiliate->id)->orderBy('id', 'desc');
-            })
+            ->getModel()
+            ->where('affiliate_id', $affiliate->id)
+            ->orderBy('id', 'desc')
             ->paginate($limit, ['*'], 'page', $page);
 
         return [
