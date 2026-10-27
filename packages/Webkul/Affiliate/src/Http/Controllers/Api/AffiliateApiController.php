@@ -91,10 +91,10 @@ class AffiliateApiController extends Controller
         $affiliate = $this->affiliateRepository->getOrCreateForCustomer($customer->id);
         $wallet = $this->walletRepository->getByAffiliateId($affiliate->id);
 
-        $minWithdrawal = (float) (core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
-        $clearanceDays = (int) (core()->getConfigData('affiliate.general.clearance_days') ?? 7);
-        $defaultType = core()->getConfigData('affiliate.general.default_commission_type') ?: 'percentage';
-        $defaultValue = (float) (core()->getConfigData('affiliate.general.default_commission_value') ?? 5.0);
+        $minWithdrawal = (float) (core()->getConfigData('affiliate.general.settings.min_withdrawal_amount') ?? core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
+        $clearanceDays = (int) (core()->getConfigData('affiliate.general.settings.clearance_days') ?? core()->getConfigData('affiliate.general.clearance_days') ?? 7);
+        $defaultType = core()->getConfigData('affiliate.general.settings.default_commission_type') ?: (core()->getConfigData('affiliate.general.default_commission_type') ?: 'percentage');
+        $defaultValue = (float) (core()->getConfigData('affiliate.general.settings.default_commission_value') ?? core()->getConfigData('affiliate.general.default_commission_value') ?? 5.0);
 
         $conversionRate = $affiliate->total_clicks > 0
             ? round(($affiliate->total_orders / $affiliate->total_clicks) * 100, 1)
@@ -449,7 +449,7 @@ class AffiliateApiController extends Controller
         $affiliate = $this->affiliateRepository->getOrCreateForCustomer($customer->id);
         $wallet = $this->walletRepository->getByAffiliateId($affiliate->id);
 
-        $minAmount = (float) (core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
+        $minAmount = (float) (core()->getConfigData('affiliate.general.settings.min_withdrawal_amount') ?? core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
 
         $method = $request->input('payout_method') ?? $request->input('payoutMethod');
         $upiId = $request->input('upi_id') ?? $request->input('upiId');

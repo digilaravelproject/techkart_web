@@ -40,9 +40,9 @@ class CommissionCalculatorService
             return [];
         }
 
-        $clearanceDays = (int) (core()->getConfigData('affiliate.general.clearance_days') ?? 7);
+        $clearanceDays = (int) (core()->getConfigData('affiliate.general.settings.clearance_days') ?? core()->getConfigData('affiliate.general.clearance_days') ?? 7);
         $clearsAt = Carbon::now()->addDays($clearanceDays);
-        $maxOrderCap = (float) (core()->getConfigData('affiliate.general.max_commission_per_order') ?: 0);
+        $maxOrderCap = (float) (core()->getConfigData('affiliate.general.settings.max_commission_per_order') ?? core()->getConfigData('affiliate.general.max_commission_per_order') ?: 0);
 
         $commissions = [];
         $totalCommission = 0;
@@ -129,8 +129,8 @@ class CommissionCalculatorService
             return $this->formatRuleResult('category', $categoryRule->commission_type, (float) $categoryRule->commission_value, $item);
         }
 
-        $globalType = core()->getConfigData('affiliate.general.default_commission_type') ?: 'percentage';
-        $globalValue = (float) (core()->getConfigData('affiliate.general.default_commission_value') ?? 5.0);
+        $globalType = core()->getConfigData('affiliate.general.settings.default_commission_type') ?: (core()->getConfigData('affiliate.general.default_commission_type') ?: 'percentage');
+        $globalValue = (float) (core()->getConfigData('affiliate.general.settings.default_commission_value') ?? core()->getConfigData('affiliate.general.default_commission_value') ?? 5.0);
 
         return $this->formatRuleResult('global', $globalType, $globalValue, $item);
     }
@@ -252,8 +252,8 @@ class CommissionCalculatorService
             ];
         }
 
-        $globalType = core()->getConfigData('affiliate.general.default_commission_type') ?: 'percentage';
-        $globalValue = (float) (core()->getConfigData('affiliate.general.default_commission_value') ?? 5.0);
+        $globalType = core()->getConfigData('affiliate.general.settings.default_commission_type') ?: (core()->getConfigData('affiliate.general.default_commission_type') ?: 'percentage');
+        $globalValue = (float) (core()->getConfigData('affiliate.general.settings.default_commission_value') ?? core()->getConfigData('affiliate.general.default_commission_value') ?? 5.0);
 
         $amount = $globalType === 'fixed'
             ? $globalValue
@@ -316,7 +316,7 @@ class CommissionCalculatorService
      */
     public function isProgramActive(): bool
     {
-        $status = core()->getConfigData('affiliate.general.status');
+        $status = core()->getConfigData('affiliate.general.settings.status') ?? core()->getConfigData('affiliate.general.status');
 
         return $status === null || (bool) $status;
     }

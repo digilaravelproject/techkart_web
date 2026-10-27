@@ -30,7 +30,7 @@ class WalletController extends Controller
 
         $wallet = $this->walletRepository->getByAffiliateId($affiliate->id);
 
-        $minAmount = (float) (core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
+        $minAmount = (float) (core()->getConfigData('affiliate.general.settings.min_withdrawal_amount') ?? core()->getConfigData('affiliate.general.min_withdrawal_amount') ?? 500);
 
         request()->validate([
             'amount' => 'required|numeric|min:'.$minAmount.'|max:'.$wallet->available_balance,
