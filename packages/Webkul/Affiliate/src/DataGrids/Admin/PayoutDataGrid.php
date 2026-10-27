@@ -26,6 +26,8 @@ class PayoutDataGrid extends DataGrid
                 'ap.status',
                 'ap.transaction_reference',
                 'ap.created_at',
+                'affiliates.payout_details as affiliate_payout_details',
+                'affiliates.payout_method as affiliate_payout_method',
                 DB::raw("CONCAT({$tablePrefix}customers.first_name, ' ', {$tablePrefix}customers.last_name) as customer_name"),
                 'customers.email as customer_email'
             );
@@ -113,15 +115,41 @@ class PayoutDataGrid extends DataGrid
             'closure' => function ($row) {
                 $details = is_string($row->payout_details) ? json_decode($row->payout_details, true) : (array) $row->payout_details;
 
-                if ($row->payout_method === 'upi') {
-                    return '<div class="text-xs font-mono bg-gray-100 dark:bg-gray-800 p-1 rounded">UPI: '.e($details['upi_id'] ?? 'N/A').'</div>';
+                if (empty($details) || (empty($details['upi_id']) && empty($details['upiId']) && empty($details['account_number']))) {
+                    $affDetails = is_string($row->affiliate_payout_details ?? null)
+                        ? json_decode($row->affiliate_payout_details, true)
+                        : (array) ($row->affiliate_payout_details ?? []);
+
+                    if (! empty($affDetails)) {
+                        $details = $affDetails;
+                    }
                 }
 
-                return '<div class="text-xs bg-gray-100 dark:bg-gray-800 p-1 rounded space-y-0.5">'.
-                    '<div><b>A/C:</b> '.e($details['account_number'] ?? 'N/A').'</div>'.
-                    '<div><b>IFSC:</b> '.e($details['ifsc_code'] ?? 'N/A').'</div>'.
-                    '<div><b>Holder:</b> '.e($details['account_holder'] ?? 'N/A').'</div>'.
-                    '</div>';
+                $method = $row->payout_method ?: ($row->affiliate_payout_method ?? 'upi');
+
+                if ($method === 'upi') {
+                    $upiId = $details['upi_id'] ?? ($details['upiId'] ?? ($details['upi'] ?? null));
+
+                    if ($upiId) {
+                        return '<div class="text-xs font-mono font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1.5 rounded-lg border border-blue-200 dark:border-blue-800 inline-flex items-center gap-1.5 shadow-sm">'
+                            .'<span>UPI: ' . e($upiId) . '</span>'
+                            .'</div>';
+                    }
+
+                    return '<span class="text-xs text-amber-600 dark:text-amber-400 font-semibold bg-amber-50 dark:bg-amber-950/50 px-2 py-1 rounded">UPI ID Pending</span>';
+                }
+
+                $acc = $details['account_number'] ?? ($details['accountNumber'] ?? 'N/A');
+                $ifsc = $details['ifsc_code'] ?? ($details['ifscCode'] ?? 'N/A');
+                $holder = $details['account_holder'] ?? ($details['accountHolder'] ?? 'N/A');
+                $bank = $details['bank_name'] ?? ($details['bankName'] ?? null);
+
+                return '<div class="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded-lg space-y-0.5 border border-gray-200 dark:border-gray-700">'
+                    .'<div><b>A/C:</b> ' . e($acc) . '</div>'
+                    .'<div><b>IFSC:</b> ' . e($ifsc) . '</div>'
+                    .'<div><b>Holder:</b> ' . e($holder) . '</div>'
+                    .($bank ? '<div><b>Bank:</b> ' . e($bank) . '</div>' : '')
+                    .'</div>';
             },
         ]);
 
@@ -156,7 +184,7 @@ class PayoutDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'actions',
+            'index' => 'operations',
             'label' => trans('affiliate::app.admin.payouts.actions'),
             'type' => 'string',
             'searchable' => false,
@@ -164,21 +192,36 @@ class PayoutDataGrid extends DataGrid
             'filterable' => false,
             'closure' => function ($row) {
                 if ($row->status === 'requested' || $row->status === 'processing') {
-                    return '<button type="button" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition" onclick="openPayoutModal('.$row->id.')">
+                    return '<button type="button" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow transition hover:scale-105" onclick="openPayoutModal('.$row->id.')">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Process
+                        Process / Approve
                     </button>';
                 }
 
                 if ($row->status === 'completed') {
-                    return '<div class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓ Paid'.($row->transaction_reference ? '<span class="block text-gray-500 font-mono text-[11px]">Ref: '.e($row->transaction_reference).'</span>' : '').'</div>';
+                    return '<div class="text-xs text-emerald-600 dark:text-emerald-400 font-bold">✓ Approved & Paid'.($row->transaction_reference ? '<span class="block text-gray-500 font-mono text-[11px] font-normal">UTR: '.e($row->transaction_reference).'</span>' : '').'</div>';
                 }
 
                 if ($row->status === 'rejected') {
-                    return '<span class="text-xs text-red-500 font-medium">✕ Rejected</span>';
+                    return '<span class="text-xs text-red-500 font-bold">✕ Rejected</span>';
                 }
 
                 return '<span class="text-xs text-gray-400">—</span>';
+            },
+        ]);
+    }
+
+    /**
+     * Prepare actions.
+     */
+    public function prepareActions()
+    {
+        $this->addAction([
+            'icon' => 'icon-edit text-2xl',
+            'title' => 'Process / Approve Payout',
+            'method' => 'GET',
+            'url' => function ($row) {
+                return 'javascript:openPayoutModal('.$row->id.');';
             },
         ]);
     }

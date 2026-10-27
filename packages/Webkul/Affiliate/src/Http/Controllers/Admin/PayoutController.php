@@ -33,6 +33,17 @@ class PayoutController extends Controller
 
         $pendingPayoutsPayload = $pendingPayouts->map(function ($payout) {
             $details = is_string($payout->payout_details) ? json_decode($payout->payout_details, true) : (array) $payout->payout_details;
+
+            if (empty($details) || (empty($details['upi_id']) && empty($details['upiId']) && empty($details['account_number']))) {
+                $affiliateDetails = is_string($payout->affiliate?->payout_details)
+                    ? json_decode($payout->affiliate->payout_details, true)
+                    : (array) ($payout->affiliate?->payout_details ?? []);
+
+                if (! empty($affiliateDetails)) {
+                    $details = $affiliateDetails;
+                }
+            }
+
             $customer = $payout->affiliate?->customer;
 
             return [
@@ -40,8 +51,14 @@ class PayoutController extends Controller
                 'payout_number' => $payout->payout_number,
                 'amount' => (float) $payout->amount,
                 'amount_formatted' => '₹'.number_format((float) $payout->amount, 2),
-                'method' => $payout->payout_method,
-                'details' => $details,
+                'method' => $payout->payout_method ?: ($payout->affiliate?->payout_method ?? 'upi'),
+                'details' => [
+                    'upi_id' => $details['upi_id'] ?? ($details['upiId'] ?? ($details['upi'] ?? null)),
+                    'account_number' => $details['account_number'] ?? ($details['accountNumber'] ?? null),
+                    'ifsc_code' => $details['ifsc_code'] ?? ($details['ifscCode'] ?? null),
+                    'account_holder' => $details['account_holder'] ?? ($details['accountHolder'] ?? null),
+                    'bank_name' => $details['bank_name'] ?? ($details['bankName'] ?? null),
+                ],
                 'customer_name' => trim(($customer?->first_name ?? '').' '.($customer?->last_name ?? '')) ?: 'N/A',
                 'customer_email' => $customer?->email ?? 'N/A',
                 'status' => $payout->status,

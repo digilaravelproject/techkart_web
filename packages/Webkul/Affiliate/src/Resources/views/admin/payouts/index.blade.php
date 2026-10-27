@@ -399,7 +399,8 @@
                 if (payout.method === 'upi') {
                     upiBox.classList.remove('hidden');
                     bankBox.classList.add('hidden');
-                    document.getElementById('detail_upi_val').textContent = (payout.details && payout.details.upi_id) ? payout.details.upi_id : 'N/A';
+                    const upiVal = (payout.details && (payout.details.upi_id || payout.details.upiId || payout.details.upi)) ? (payout.details.upi_id || payout.details.upiId || payout.details.upi) : 'N/A';
+                    document.getElementById('detail_upi_val').textContent = upiVal;
                 } else {
                     upiBox.classList.add('hidden');
                     bankBox.classList.remove('hidden');
