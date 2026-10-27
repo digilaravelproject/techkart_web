@@ -6,6 +6,11 @@
 
     RewriteEngine On
 
+    # Set HTTPS environment variable if behind SSL proxy
+    RewriteCond %{HTTP:X-Forwarded-Proto} =https [OR]
+    RewriteCond %{HTTP:X-Forwarded-SSL} =on
+    RewriteRule ^ - [E=HTTPS:on]
+
     # Force HTTPS
     RewriteCond %{HTTPS} off
     RewriteCond %{HTTP:X-Forwarded-Proto} !https

@@ -53,6 +53,8 @@ class AppServiceProvider extends ServiceProvider
             || str_contains((string) request()->getHost(), 'benzoo.in')
         ) {
             URL::forceScheme('https');
+            request()->server->set('HTTPS', 'on');
+            $_SERVER['HTTPS'] = 'on';
         }
     }
 }
