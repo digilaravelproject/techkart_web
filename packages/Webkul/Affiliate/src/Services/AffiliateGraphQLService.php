@@ -140,6 +140,7 @@ class AffiliateGraphQLService
                 'account_holder' => $pDetails['account_holder'] ?? null,
                 'bankName' => $pDetails['bank_name'] ?? null,
                 'bank_name' => $pDetails['bank_name'] ?? null,
+                'details' => $pDetails ?? [],
             ],
             'config' => [
                 'minWithdrawalAmount' => $minWithdrawal,

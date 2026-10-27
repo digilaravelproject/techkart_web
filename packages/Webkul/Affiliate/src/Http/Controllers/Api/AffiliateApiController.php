@@ -102,6 +102,10 @@ class AffiliateApiController extends Controller
 
         $referralLink = url('/').'?ref='.$affiliate->referral_code;
 
+        $pDetails = is_string($affiliate->payout_details)
+            ? json_decode($affiliate->payout_details, true)
+            : (array) $affiliate->payout_details;
+
         return new JsonResponse([
             'success' => true,
             'data' => [
@@ -130,7 +134,12 @@ class AffiliateApiController extends Controller
                 ],
                 'payout_profile' => [
                     'method' => $affiliate->payout_method,
-                    'details' => $affiliate->payout_details ?? [],
+                    'upi_id' => $pDetails['upi_id'] ?? null,
+                    'account_number' => $pDetails['account_number'] ?? null,
+                    'ifsc_code' => $pDetails['ifsc_code'] ?? null,
+                    'account_holder' => $pDetails['account_holder'] ?? null,
+                    'bank_name' => $pDetails['bank_name'] ?? null,
+                    'details' => $pDetails ?? [],
                 ],
                 'config' => [
                     'min_withdrawal_amount' => $minWithdrawal,
@@ -321,6 +330,11 @@ class AffiliateApiController extends Controller
             'data' => [
                 'payout_method' => $affiliate->payout_method,
                 'payout_details' => $affiliate->payout_details,
+                'upi_id' => $details['upi_id'] ?? null,
+                'account_number' => $details['account_number'] ?? null,
+                'ifsc_code' => $details['ifsc_code'] ?? null,
+                'account_holder' => $details['account_holder'] ?? null,
+                'bank_name' => $details['bank_name'] ?? null,
             ],
         ]);
     }
