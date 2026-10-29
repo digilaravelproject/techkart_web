@@ -277,7 +277,15 @@ class TestamentThemeSeeder extends Seeder
             }
         }
 
-        // 6. Activate 'testament' theme on Channel 1
+        // 6. Reindex Product Flat and Prices
+        try {
+            app(\Webkul\Product\Helpers\Indexers\Flat::class)->reindexFull();
+            \Illuminate\Support\Facades\Artisan::call('indexer:index');
+        } catch (\Throwable $e) {
+            $this->command?->warn("Reindex note: " . $e->getMessage());
+        }
+
+        // 7. Activate 'testament' theme on Channel 1
         $channel = Channel::find(1);
         if ($channel) {
             $channel->theme = 'testament';

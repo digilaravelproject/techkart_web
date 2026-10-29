@@ -1,12 +1,14 @@
 @php
     $channel = core()->getCurrentChannel();
 
-    // Fetch active products from Bagisto repository
     $productRepo = app(\Webkul\Product\Repositories\ProductRepository::class);
-    $dbProducts = $productRepo->getAll(['limit' => 20]);
+    $categoryRepo = app(\Webkul\Category\Repositories\CategoryRepository::class);
 
-    // Curated high-fashion fashion demo products matching Image 2 (Testament Shopify Demo)
-    $trendingCollection = [
+    // 1. Fetch real active products from database
+    $dbProducts = $productRepo->getAll(['limit' => 24]);
+
+    // Curated high-fashion fallbacks if catalog is brand new
+    $fallbackTrending = [
         [
             'name'        => 'Aria Floral Tiered Maxi Dress',
             'price'       => '$68.00',
@@ -49,45 +51,113 @@
         ],
     ];
 
-    $bubbleDresses = [
+    $fallbackJustArrived = [
         [
             'name'       => 'Noir Strapless Bubble Hem Mini',
             'price'      => '$79.00',
+            'orig_price' => null,
             'badge'      => 'LIMITED',
+            'badge_color'=> '#111111',
             'image'      => 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80',
             'url'        => route('shop.search.index', ['term' => 'noir']),
         ],
         [
             'name'       => 'Ivory Strapless Balloon Dress',
             'price'      => '$79.00',
+            'orig_price' => null,
             'badge'      => 'NEW',
+            'badge_color'=> '#111111',
             'image'      => 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=800&auto=format&fit=crop&q=80',
             'url'        => route('shop.search.index', ['term' => 'ivory']),
         ],
         [
             'name'       => 'Midnight Satin Corset Mini',
             'price'      => '$85.00',
+            'orig_price' => null,
             'badge'      => 'TRENDING',
+            'badge_color'=> '#111111',
             'image'      => 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80',
             'url'        => route('shop.search.index', ['term' => 'midnight']),
         ],
         [
             'name'       => 'Scarlet Red Tiered Bubble Dress',
             'price'      => '$89.00',
+            'orig_price' => null,
             'badge'      => 'SELLING FAST',
+            'badge_color'=> '#b83b32',
             'image'      => 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=800&auto=format&fit=crop&q=80',
             'url'        => route('shop.search.index', ['term' => 'scarlet']),
         ],
     ];
 
-    $categoriesBubbles = [
-        ['name' => 'Dresses', 'img' => 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&auto=format&fit=crop&q=70'],
-        ['name' => 'Tops', 'img' => 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=300&auto=format&fit=crop&q=70'],
-        ['name' => 'Playsuits', 'img' => 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=300&auto=format&fit=crop&q=70'],
-        ['name' => 'Linen Edit', 'img' => 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=300&auto=format&fit=crop&q=70'],
-        ['name' => 'Knitwear', 'img' => 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=300&auto=format&fit=crop&q=70'],
-        ['name' => 'Sale', 'img' => 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=300&auto=format&fit=crop&q=70'],
+    // Map dynamic products from database
+    $dynamicProducts = $dbProducts->map(function ($product) {
+        $firstImage = $product->images->first();
+        $imgUrl = $firstImage ? $firstImage->url : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80';
+        $minPrice = $product->getTypeInstance()->getMinimalPrice();
+        $specialPrice = $product->special_price;
+
+        return [
+            'id'          => $product->id,
+            'name'        => $product->name,
+            'price'       => core()->formatPrice($minPrice),
+            'orig_price'  => ($specialPrice && $specialPrice < $product->price) ? core()->formatPrice($product->price) : null,
+            'badge'       => $specialPrice ? 'SALE' : ($product->new ? 'NEW' : 'POPULAR'),
+            'badge_color' => $specialPrice ? '#b83b32' : '#111111',
+            'image'       => $imgUrl,
+            'url'         => route('shop.product_or_category.index', $product->url_key),
+            'colors'      => ['#e6b89c', '#d4a373', '#ccd5ae'],
+        ];
+    });
+
+    // Trending Collection: Dynamically uses real database products!
+    $trendingCollection = $dynamicProducts->isNotEmpty() ? $dynamicProducts->take(4) : collect($fallbackTrending);
+
+    // Just Arrived Collection: Dynamically uses latest database products!
+    $justArrivedCollection = $dynamicProducts->count() > 4 ? $dynamicProducts->slice(4, 4) : ($dynamicProducts->isNotEmpty() ? $dynamicProducts->take(4) : collect($fallbackJustArrived));
+
+    // Dynamic Spotlight: Willa Playsuit or first featured real product
+    $willaModel = \Webkul\Product\Models\Product::where('sku', 'TESTAMENT-WILLA')->first()
+        ?? $dbProducts->first();
+
+    $willaData = [
+        'name'        => $willaModel ? $willaModel->name : 'Willa Playsuit',
+        'desc'        => $willaModel && $willaModel->short_description ? $willaModel->short_description : 'The Willa Playsuit is the perfect fit for summer. Light, Bright and easy for relaxed occasions. Tailored from pure breathable flax linen with a flattering cinched tie-waist.',
+        'price'       => $willaModel ? core()->formatPrice($willaModel->getTypeInstance()->getMinimalPrice()) : '$59.00',
+        'orig_price'  => ($willaModel && $willaModel->special_price) ? core()->formatPrice($willaModel->price) : '$79.00',
+        'image'       => ($willaModel && $willaModel->images->first()) ? $willaModel->images->first()->url : 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=1000&auto=format&fit=crop&q=85',
+        'url'         => $willaModel ? route('shop.product_or_category.index', $willaModel->url_key) : route('shop.search.index', ['term' => 'willa']),
     ];
+
+    // Dynamic Category Bubbles from DB
+    $dbCategories = $categoryRepo->getVisibleCategoryTree($channel->root_category_id);
+    $catFallbackImgs = [
+        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&auto=format&fit=crop&q=70',
+        'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=300&auto=format&fit=crop&q=70',
+        'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=300&auto=format&fit=crop&q=70',
+        'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=300&auto=format&fit=crop&q=70',
+        'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=300&auto=format&fit=crop&q=70',
+        'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=300&auto=format&fit=crop&q=70',
+    ];
+
+    if ($dbCategories->isNotEmpty()) {
+        $categoriesBubbles = $dbCategories->take(6)->values()->map(function($cat, $idx) use ($catFallbackImgs) {
+            return [
+                'name' => $cat->name,
+                'img'  => $cat->logo_url ?: ($cat->banner_url ?: $catFallbackImgs[$idx % count($catFallbackImgs)]),
+                'url'  => route('shop.product_or_category.index', $cat->slug),
+            ];
+        });
+    } else {
+        $categoriesBubbles = collect([
+            ['name' => 'Dresses', 'img' => $catFallbackImgs[0], 'url' => route('shop.search.index', ['term' => 'dress'])],
+            ['name' => 'Tops', 'img' => $catFallbackImgs[1], 'url' => route('shop.search.index', ['term' => 'top'])],
+            ['name' => 'Playsuits', 'img' => $catFallbackImgs[2], 'url' => route('shop.search.index', ['term' => 'playsuit'])],
+            ['name' => 'Linen Edit', 'img' => $catFallbackImgs[3], 'url' => route('shop.search.index', ['term' => 'linen'])],
+            ['name' => 'Knitwear', 'img' => $catFallbackImgs[4], 'url' => route('shop.search.index', ['term' => 'knitwear'])],
+            ['name' => 'Sale', 'img' => $catFallbackImgs[5], 'url' => route('shop.search.index', ['term' => 'sale'])],
+        ]);
+    }
 
     $journalArticles = [
         [
@@ -1050,16 +1120,16 @@
                 <div style="display: flex; align-items: center; gap: 20px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500;">
                     <a href="{{ route('shop.search.index') }}" style="color: inherit; text-decoration: none;">SEARCH</a>
                     <a href="{{ route('shop.customer.session.index') }}" style="color: inherit; text-decoration: none;">ACCOUNT</a>
-                    <a href="{{ route('shop.checkout.cart.index') }}" style="color: inherit; text-decoration: none; font-weight: 600;">BAG (0)</a>
+                    <a href="{{ route('shop.checkout.cart.index') }}" style="color: inherit; text-decoration: none; font-weight: 600;">BAG ({{ \Webkul\Checkout\Facades\Cart::getCart()?->items_count ?? 0 }})</a>
                 </div>
             </div>
 
-            <!-- Centered Nav Menu -->
+            <!-- Centered Nav Menu (Dynamic Categories + Lookbook/Sale) -->
             <nav class="tst-nav-links">
                 <a href="{{ route('shop.search.index', ['term' => 'new']) }}" class="tst-nav-link">NEW IN</a>
-                <a href="{{ route('shop.search.index', ['term' => 'dress']) }}" class="tst-nav-link">DRESSES</a>
-                <a href="{{ route('shop.search.index', ['term' => 'playsuit']) }}" class="tst-nav-link">PLAYSUITS</a>
-                <a href="{{ route('shop.search.index', ['term' => 'linen']) }}" class="tst-nav-link">SUMMER EDIT</a>
+                @foreach ($categoriesBubbles->take(4) as $navCat)
+                    <a href="{{ $navCat['url'] }}" class="tst-nav-link">{{ strtoupper($navCat['name']) }}</a>
+                @endforeach
                 <a href="#lookbook" class="tst-nav-link">LOOKBOOK</a>
                 <a href="#sale" class="tst-nav-link sale">SALE - UP TO 50%</a>
             </nav>
@@ -1126,7 +1196,7 @@
 
 
         <!-- ================================================================= -->
-        <!-- 5. TRENDING NOW (4-COLUMN EDITORIAL PRODUCT GRID - Image 2)      -->
+        <!-- 5. TRENDING NOW (DYNAMIC REAL PRODUCTS - 4-COLUMN)               -->
         <!-- ================================================================= -->
         <section id="trending" class="tst-section">
             <div class="tst-section-header">
@@ -1143,14 +1213,14 @@
                                 {{ $item['badge'] }}
                             </span>
                             <div class="tst-card-hover-action">
-                                Quick View
+                                View Product
                             </div>
                         </div>
                         <div class="tst-card-body">
                             <h3 class="tst-card-title">{{ $item['name'] }}</h3>
                             <div class="tst-card-price">
                                 {{ $item['price'] }}
-                                @if ($item['orig_price'])
+                                @if (!empty($item['orig_price']))
                                     <span class="tst-card-orig-price">{{ $item['orig_price'] }}</span>
                                 @endif
                             </div>
@@ -1210,11 +1280,11 @@
 
 
         <!-- ================================================================= -->
-        <!-- 8. CIRCULAR CATEGORY BUBBLES BAR (Matching Image 2)               -->
+        <!-- 8. CIRCULAR CATEGORY BUBBLES BAR (DYNAMIC CATEGORIES)             -->
         <!-- ================================================================= -->
         <div class="tst-bubbles-bar">
             @foreach ($categoriesBubbles as $bubble)
-                <a href="{{ route('shop.search.index', ['term' => $bubble['name']]) }}" class="tst-bubble-item">
+                <a href="{{ $bubble['url'] }}" class="tst-bubble-item">
                     <div class="tst-bubble-img-wrap">
                         <img src="{{ $bubble['img'] }}" alt="{{ $bubble['name'] }}" class="tst-bubble-img" />
                     </div>
@@ -1243,33 +1313,34 @@
 
 
         <!-- ================================================================= -->
-        <!-- 10. SPLIT SPOTLIGHT FEATURE: WILLA PLAYSUIT (Image 2)            -->
+        <!-- 10. SPLIT SPOTLIGHT FEATURE: WILLA / FEATURED PRODUCT (Image 2)   -->
         <!-- ================================================================= -->
         <section class="tst-split-spotlight">
             <div class="tst-spotlight-text">
                 <h4>THERES MORE TO EXPLORE</h4>
-                <h2>Willa Playsuit</h2>
+                <h2>{{ $willaData['name'] }}</h2>
                 <p>
-                    The Willa Playsuit is the perfect fit for summer. Light, 
-                    <span style="font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: #111;">Bright and easy</span> 
-                    for relaxed occasions. Made from pure breathable flax linen with a flattering cinched tie-waist.
+                    {{ $willaData['desc'] }}
                 </p>
                 <div style="font-size: 26px; font-family: 'Cormorant Garamond', serif; font-weight: 700; color: #b83b32; margin-bottom: 24px;">
-                    $59.00 <span style="font-size: 16px; text-decoration: line-through; color: #999; margin-left: 8px;">$79.00</span>
+                    {{ $willaData['price'] }} 
+                    @if ($willaData['orig_price'])
+                        <span style="font-size: 16px; text-decoration: line-through; color: #999; margin-left: 8px;">{{ $willaData['orig_price'] }}</span>
+                    @endif
                 </div>
-                <a href="{{ route('shop.search.index', ['term' => 'willa']) }}" class="tst-btn-black">
+                <a href="{{ $willaData['url'] }}" class="tst-btn-black">
                     Shop Now
                 </a>
             </div>
 
             <div class="tst-spotlight-img-wrap">
-                <img src="https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=1000&auto=format&fit=crop&q=85" alt="Willa Playsuit" class="tst-spotlight-img" />
+                <img src="{{ $willaData['image'] }}" alt="{{ $willaData['name'] }}" class="tst-spotlight-img" />
             </div>
         </section>
 
 
         <!-- ================================================================= -->
-        <!-- 11. JUST ARRIVED / BUBBLE DRESSES 4-COLUMN (Matching Image 2)    -->
+        <!-- 11. JUST ARRIVED / NEW PRODUCTS (DYNAMIC REAL PRODUCTS)          -->
         <!-- ================================================================= -->
         <section class="tst-section">
             <div class="tst-section-header">
@@ -1278,21 +1349,24 @@
             </div>
 
             <div class="tst-product-grid">
-                @foreach ($bubbleDresses as $dress)
+                @foreach ($justArrivedCollection as $dress)
                     <a href="{{ $dress['url'] }}" class="tst-card">
                         <div class="tst-card-img-wrap">
                             <img src="{{ $dress['image'] }}" alt="{{ $dress['name'] }}" class="tst-card-img" loading="lazy" />
-                            <span class="tst-card-badge" style="background-color: #111111;">
+                            <span class="tst-card-badge" style="background-color: {{ $dress['badge_color'] ?? '#111111' }};">
                                 {{ $dress['badge'] }}
                             </span>
                             <div class="tst-card-hover-action">
-                                Quick View
+                                View Product
                             </div>
                         </div>
                         <div class="tst-card-body">
                             <h3 class="tst-card-title">{{ $dress['name'] }}</h3>
                             <div class="tst-card-price">
                                 {{ $dress['price'] }}
+                                @if (!empty($dress['orig_price']))
+                                    <span class="tst-card-orig-price">{{ $dress['orig_price'] }}</span>
+                                @endif
                             </div>
                         </div>
                     </a>
@@ -1320,7 +1394,7 @@
                     </p>
                     <div style="font-size: 24px; font-weight: 600; margin-bottom: 26px;">$94.00</div>
                     <a href="{{ route('shop.search.index') }}" class="tst-btn-black">
-                        Add to Bag &bull; $94.00
+                        Explore Collection
                     </a>
                 </div>
             </div>
