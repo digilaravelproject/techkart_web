@@ -185,6 +185,29 @@ return [
                 ],
             ],
         ],
+
+        'testament' => [
+            'name' => 'The Testament',
+            'assets_path' => 'public/themes/shop/default',
+            'views_path' => 'resources/themes/testament/views',
+
+            'vite' => [
+                'hot_file' => 'shop-default-vite.hot',
+                'build_directory' => 'themes/shop/default/build',
+                'package_assets_directory' => 'src/Resources/assets',
+            ],
+
+            'customize' => [
+                'sections' => [
+                    SectionTypeEnum::IMAGE_CAROUSEL,
+                    SectionTypeEnum::PRODUCT_CAROUSEL,
+                    SectionTypeEnum::CATEGORY_CAROUSEL,
+                    SectionTypeEnum::FOOTER_LINKS,
+                    SectionTypeEnum::STATIC_CONTENT,
+                    SectionTypeEnum::SERVICES_CONTENT,
+                ],
+            ],
+        ],
     ],
 
     /*

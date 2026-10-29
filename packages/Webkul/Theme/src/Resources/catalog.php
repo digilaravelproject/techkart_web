@@ -16,6 +16,18 @@ $screenshots = 'https://bagisto.com/wp-content/themes/bagisto/images/theme-listi
 
 return [
     [
+        'code' => 'testament',
+        'name' => 'The Testament',
+        'author' => 'Underground Media',
+        'version' => '1.0',
+        'url' => 'https://testament.myshopify.com/',
+        'demo_url' => 'https://testament.myshopify.com/',
+        'screenshot' => 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&auto=format&fit=crop',
+        'rating' => 5.0,
+        'tags' => ['shopify', 'fashion', 'responsive', 'luxury'],
+        'description' => 'The Testament Responsive Shopify Theme inspired layout with countdown sale banner, summer ready styles, and editorial luxury typography.',
+    ],
+    [
         'code' => 'default',
         'name' => 'Default',
         'author' => 'Webkul',
