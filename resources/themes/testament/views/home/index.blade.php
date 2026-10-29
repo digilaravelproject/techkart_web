@@ -188,6 +188,42 @@
         'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=600&auto=format&fit=crop&q=80',
         'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=600&auto=format&fit=crop&q=80',
     ];
+
+    // Read Admin Theme Sections if present
+    $sectionsMap = isset($sections) ? collect($sections)->keyBy('name') : collect();
+
+    // 1. Top Announcement Bar
+    $announcementSection = $sectionsMap->get('Top Announcement Bar') 
+        ?? (isset($sections) ? collect($sections)->firstWhere('type', 'static_content') : null);
+    $announcementHtml = $announcementSection?->options['html'] 
+        ?? 'COMPLIMENTARY WORLDWIDE SHIPPING ON ORDERS OVER $150 • CODE: SUMMER50';
+
+    // 2. Hero Banner
+    $heroSection = $sectionsMap->get('Hero Main Banner') 
+        ?? (isset($sections) ? collect($sections)->firstWhere('type', 'image_carousel') : null);
+    $heroSlide = $heroSection?->options['images'][0] ?? null;
+
+    $heroImg = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&auto=format&fit=crop&q=85';
+    if ($heroSlide && !empty($heroSlide['image'])) {
+        $rawHeroImg = $heroSlide['image'];
+        $heroImg = \Illuminate\Support\Str::startsWith($rawHeroImg, ['http://', 'https://'])
+            ? $rawHeroImg
+            : asset('storage/' . $rawHeroImg);
+    }
+    $heroTitle = $heroSlide['title'] ?? "Fresh New Arrivals <br/> <em>Effortless Elegance</em>";
+    $heroLink = $heroSlide['link'] ?? '#trending';
+
+    // 3. Sale Countdown Offer
+    $saleSection = $sectionsMap->get('Sale Countdown Bar');
+    $saleText = $saleSection?->options['html'] ?? 'SALE NOW ON';
+
+    // 4. Summer Ready Styles Callout
+    $summerSection = $sectionsMap->get('Summer Ready Styles Callout');
+    $summerCalloutHtml = $summerSection?->options['html'] ?? 'Embrace the season in style with our latest collection, curated to keep you looking effortlessly chic all summer long.';
+
+    // 5. Willa Playsuit Spotlight
+    $willaSection = $sectionsMap->get('Willa Playsuit Spotlight');
+    $willaDesc = $willaSection?->options['html'] ?? null;
 @endphp
 
 <!-- SEO Meta Content -->
@@ -1097,8 +1133,8 @@
         <!-- ================================================================= -->
         <!-- 1. ANNOUNCEMENT BAR                                               -->
         <!-- ================================================================= -->
-        <div class="tst-announcement">
-            COMPLIMENTARY WORLDWIDE SHIPPING ON ORDERS OVER $150 • CODE: SUMMER50
+        <div class="tst-announcement" @if($announcementSection && ($preview ?? false)) data-section-id="{{ $announcementSection->id }}" data-section-name="{{ $announcementSection->name }}" @endif>
+            {!! $announcementHtml !!}
         </div>
 
         <!-- ================================================================= -->
@@ -1139,16 +1175,15 @@
         <!-- ================================================================= -->
         <!-- 3. HERO SECTION (Matching Image 2 Top Full Banner)                -->
         <!-- ================================================================= -->
-        <section class="tst-hero-banner">
+        <section class="tst-hero-banner" style="background-image: url('{{ $heroImg }}');" @if($heroSection && ($preview ?? false)) data-section-id="{{ $heroSection->id }}" data-section-name="{{ $heroSection->name }}" @endif>
             <div class="tst-hero-overlay"></div>
             <div class="tst-hero-content">
                 <span class="tst-hero-subtitle">SUMMER CAPSULE 2026</span>
                 <h1 class="tst-hero-title">
-                    Fresh New Arrivals <br/>
-                    <em>Effortless Elegance</em>
+                    {!! $heroTitle !!}
                 </h1>
                 <div class="tst-btn-group">
-                    <a href="#trending" class="tst-btn-white">Shop New In</a>
+                    <a href="{{ $heroLink }}" class="tst-btn-white">Shop New In</a>
                     <a href="#summer-styles" class="tst-btn-black">Explore Lookbook</a>
                 </div>
             </div>
@@ -1158,11 +1193,11 @@
         <!-- ================================================================= -->
         <!-- 4. SALE NOW ON BAR WITH LIVE COUNTDOWN TIMER                      -->
         <!-- ================================================================= -->
-        <section id="sale" class="tst-sale-bar">
+        <section id="sale" class="tst-sale-bar" @if($saleSection && ($preview ?? false)) data-section-id="{{ $saleSection->id }}" data-section-name="{{ $saleSection->name }}" @endif>
             <div class="tst-sale-inner">
                 <div class="tst-sale-headline">
                     <span class="tst-sale-pill">LIMITED TIME</span>
-                    SALE NOW ON
+                    {!! $saleText !!}
                 </div>
 
                 <!-- Live Countdown Timer -->
@@ -1263,14 +1298,12 @@
         <!-- ================================================================= -->
         <!-- 7. SUMMER READY STYLES (EDITORIAL CALLOUT - Matching Image 2)    -->
         <!-- ================================================================= -->
-        <section id="summer-styles" class="tst-editorial-callout">
+        <section id="summer-styles" class="tst-editorial-callout" @if($summerSection && ($preview ?? false)) data-section-id="{{ $summerSection->id }}" data-section-name="{{ $summerSection->name }}" @endif>
             <div class="tst-editorial-callout-inner">
                 <span class="tst-section-subtitle">THE NEW CAPSULE</span>
                 <h3>Summer Ready Styles</h3>
                 <p>
-                    Embrace the season in style with our latest collection, curated to keep you looking 
-                    <strong style="color: #111111; font-style: italic;">effortlessly chic</strong> 
-                    all summer long. Save up to 50% in our end of season sale event.
+                    {!! $summerCalloutHtml !!}
                 </p>
                 <a href="{{ route('shop.search.index') }}" class="tst-btn-black">
                     Start Shopping
@@ -1315,12 +1348,12 @@
         <!-- ================================================================= -->
         <!-- 10. SPLIT SPOTLIGHT FEATURE: WILLA / FEATURED PRODUCT (Image 2)   -->
         <!-- ================================================================= -->
-        <section class="tst-split-spotlight">
+        <section class="tst-split-spotlight" @if($willaSection && ($preview ?? false)) data-section-id="{{ $willaSection->id }}" data-section-name="{{ $willaSection->name }}" @endif>
             <div class="tst-spotlight-text">
                 <h4>THERES MORE TO EXPLORE</h4>
                 <h2>{{ $willaData['name'] }}</h2>
                 <p>
-                    {{ $willaData['desc'] }}
+                    {!! $willaDesc ?: $willaData['desc'] !!}
                 </p>
                 <div style="font-size: 26px; font-family: 'Cormorant Garamond', serif; font-weight: 700; color: #b83b32; margin-bottom: 24px;">
                     {{ $willaData['price'] }} 
@@ -1554,5 +1587,9 @@
             })();
         </script>
     @endpush
+
+    @if ($preview ?? false)
+        @include('shop::home.preview-bridge')
+    @endif
 
 </x-shop::layouts>

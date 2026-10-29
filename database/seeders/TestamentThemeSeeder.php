@@ -231,15 +231,15 @@ class TestamentThemeSeeder extends Seeder
         foreach ($products as $item) {
             $existing = Product::where('sku', $item['sku'])->first();
 
-            if (! $existing) {
-                $product = $productRepo->create([
-                    'type'                => 'simple',
-                    'attribute_family_id' => 1,
-                    'sku'                 => $item['sku'],
-                ]);
-            } else {
-                $product = $existing;
+            if ($existing) {
+                continue;
             }
+
+            $product = $productRepo->create([
+                'type'                => 'simple',
+                'attribute_family_id' => 1,
+                'sku'                 => $item['sku'],
+            ]);
 
             $updateData = [
                 'sku'                  => $item['sku'],
@@ -293,7 +293,149 @@ class TestamentThemeSeeder extends Seeder
             $this->command?->info("Default channel theme updated to 'testament'!");
         }
 
+        // 8. Seed Bagisto Admin Appearance Sections for Testament Theme
+        $this->seedThemeSections($channel ? $channel->id : 1);
+
         $this->command?->info('Testament products, categories, images & theme activated successfully!');
+    }
+
+    /**
+     * Seed Bagisto Admin Appearance Sections for 'testament' theme.
+     */
+    protected function seedThemeSections(int $channelId): void
+    {
+        $existing = DB::table('theme_sections')
+            ->where('theme_code', 'testament')
+            ->where('channel_id', $channelId)
+            ->exists();
+
+        if ($existing) {
+            $this->command?->info("Theme sections for 'testament' already exist in admin. Skipping.");
+            return;
+        }
+
+        $now = Carbon::now();
+        $locales = ['en'];
+
+        $sections = [
+            [
+                'type'       => 'static_content',
+                'name'       => 'Top Announcement Bar',
+                'sort_order' => 1,
+                'options'    => [
+                    'html' => 'COMPLIMENTARY WORLDWIDE SHIPPING ON ORDERS OVER $150 • CODE: SUMMER50',
+                    'css'  => '',
+                ],
+            ],
+            [
+                'type'       => 'image_carousel',
+                'name'       => 'Hero Main Banner',
+                'sort_order' => 2,
+                'options'    => [
+                    'images' => [
+                        [
+                            'image' => 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&auto=format&fit=crop&q=85',
+                            'title' => "Fresh New Arrivals <br/> <em>Effortless Elegance</em>",
+                            'link'  => '#trending',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'type'       => 'static_content',
+                'name'       => 'Sale Countdown Bar',
+                'sort_order' => 3,
+                'options'    => [
+                    'html' => 'SALE NOW ON - LIMITED TIME',
+                    'css'  => '',
+                ],
+            ],
+            [
+                'type'       => 'product_carousel',
+                'name'       => 'Trending Now',
+                'sort_order' => 4,
+                'options'    => [
+                    'title'   => 'Trending Now',
+                    'filters' => ['sort' => 'desc', 'limit' => 4],
+                ],
+            ],
+            [
+                'type'       => 'category_carousel',
+                'name'       => 'Shop by Category',
+                'sort_order' => 5,
+                'options'    => [
+                    'title'   => 'Shop by Category',
+                    'filters' => [],
+                ],
+            ],
+            [
+                'type'       => 'static_content',
+                'name'       => 'Summer Ready Styles Callout',
+                'sort_order' => 6,
+                'options'    => [
+                    'html' => 'Embrace the season in style with our latest collection, curated to keep you looking effortlessly chic all summer long.',
+                    'css'  => '',
+                ],
+            ],
+            [
+                'type'       => 'product_carousel',
+                'name'       => 'Just Arrived',
+                'sort_order' => 7,
+                'options'    => [
+                    'title'   => 'Just Arrived',
+                    'filters' => ['sort' => 'desc', 'limit' => 4],
+                ],
+            ],
+            [
+                'type'       => 'static_content',
+                'name'       => 'Willa Playsuit Spotlight',
+                'sort_order' => 8,
+                'options'    => [
+                    'html' => 'The Willa Playsuit is the perfect fit for summer. Light, Bright and easy for relaxed occasions.',
+                    'css'  => '',
+                ],
+            ],
+            [
+                'type'       => 'footer_links',
+                'name'       => 'Footer Links',
+                'sort_order' => 9,
+                'options'    => [
+                    'column_1' => [
+                        ['title' => 'About Us', 'url' => '/page/about-us'],
+                        ['title' => 'Contact Us', 'url' => '/contact-us'],
+                        ['title' => 'Customer Service', 'url' => '/page/customer-service'],
+                    ],
+                    'column_2' => [
+                        ['title' => 'Privacy Policy', 'url' => '/page/privacy-policy'],
+                        ['title' => 'Terms of Use', 'url' => '/page/terms-of-use'],
+                        ['title' => 'Shipping Policy', 'url' => '/page/shipping-policy'],
+                    ],
+                ],
+            ],
+        ];
+
+        foreach ($sections as $sec) {
+            $sectionId = DB::table('theme_sections')->insertGetId([
+                'theme_code' => 'testament',
+                'type'       => $sec['type'],
+                'name'       => $sec['name'],
+                'sort_order' => $sec['sort_order'],
+                'status'     => 1,
+                'channel_id' => $channelId,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            foreach ($locales as $locale) {
+                DB::table('theme_section_translations')->insert([
+                    'section_id' => $sectionId,
+                    'locale'     => $locale,
+                    'options'    => json_encode($sec['options']),
+                ]);
+            }
+        }
+
+        $this->command?->info("Seeded 9 Admin Manageable Appearance Sections for 'testament' theme!");
     }
 }
 
