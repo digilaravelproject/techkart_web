@@ -227,53 +227,64 @@ class TestamentThemeSeeder extends Seeder
 
         // 5. Create or Update Products using ProductRepository
         $productRepo = app(ProductRepository::class);
+        \Illuminate\Database\Eloquent\Model::reguard();
 
         foreach ($products as $item) {
             $existing = Product::where('sku', $item['sku'])->first();
 
-            if ($existing) {
+            if ($existing && $existing->attribute_values()->exists()) {
                 continue;
             }
 
-            $product = $productRepo->create([
-                'type'                => 'simple',
-                'attribute_family_id' => 1,
-                'sku'                 => $item['sku'],
-            ]);
+            try {
+                \Illuminate\Database\Eloquent\Model::reguard();
 
-            $updateData = [
-                'sku'                  => $item['sku'],
-                'name'                 => $item['name'],
-                'url_key'              => $item['url_key'] . '-' . $product->id,
-                'new'                  => 1,
-                'featured'             => 1,
-                'status'               => 1,
-                'visible_individually' => 1,
-                'price'                => $item['price'],
-                'special_price'        => $item['special_price'],
-                'short_description'    => $item['short_description'],
-                'description'          => $item['description'],
-                'meta_title'           => $item['name'] . ' | The Testament',
-                'meta_keywords'        => 'testament, shopify, ' . $item['name'] . ', summer fashion',
-                'meta_description'     => $item['short_description'],
-                'channel'              => 'default',
-                'locale'               => 'en',
-                'channels'             => [1],
-                'categories'           => array_merge([$rootId], $item['categories']),
-                'inventories'          => [1 => 100],
-            ];
+                if (! $existing) {
+                    $product = $productRepo->create([
+                        'type'                => 'simple',
+                        'attribute_family_id' => 1,
+                        'sku'                 => $item['sku'],
+                    ]);
+                } else {
+                    $product = $existing;
+                }
 
-            $productRepo->update($updateData, $product->id);
+                $updateData = [
+                    'sku'                  => $item['sku'],
+                    'name'                 => $item['name'],
+                    'url_key'              => $item['url_key'] . '-' . $product->id,
+                    'new'                  => 1,
+                    'featured'             => 1,
+                    'status'               => 1,
+                    'visible_individually' => 1,
+                    'price'                => $item['price'],
+                    'special_price'        => $item['special_price'],
+                    'short_description'    => $item['short_description'],
+                    'description'          => $item['description'],
+                    'meta_title'           => $item['name'] . ' | The Testament',
+                    'meta_keywords'        => 'testament, shopify, ' . $item['name'] . ', summer fashion',
+                    'meta_description'     => $item['short_description'],
+                    'channel'              => 'default',
+                    'locale'               => 'en',
+                    'channels'             => [1],
+                    'categories'           => array_merge([$rootId], $item['categories']),
+                    'inventories'          => [1 => 100],
+                ];
 
-            // Add product image if not present
-            $hasImage = ProductImage::where('product_id', $product->id)->exists();
-            if (! $hasImage && File::exists(storage_path('app/public/' . $item['db_image_path']))) {
-                ProductImage::create([
-                    'type'       => 'images',
-                    'path'       => $item['db_image_path'],
-                    'product_id' => $product->id,
-                    'position'   => 1,
-                ]);
+                $productRepo->update($updateData, $product->id);
+
+                // Add product image if not present
+                $hasImage = ProductImage::where('product_id', $product->id)->exists();
+                if (! $hasImage && File::exists(storage_path('app/public/' . $item['db_image_path']))) {
+                    ProductImage::create([
+                        'type'       => 'images',
+                        'path'       => $item['db_image_path'],
+                        'product_id' => $product->id,
+                        'position'   => 1,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $this->command?->warn("Product {$item['sku']} notice: " . $e->getMessage());
             }
         }
 
