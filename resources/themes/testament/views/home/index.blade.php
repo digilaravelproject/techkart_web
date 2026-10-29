@@ -92,20 +92,39 @@
 
     // Map dynamic products from database
     $dynamicProducts = $dbProducts->map(function ($product) {
+        try {
+            $name = $product->name;
+            $urlKey = $product->url_key;
+            $isNew = $product->new;
+            $specialPrice = $product->special_price;
+            $regularPrice = $product->price;
+        } catch (\Throwable $e) {
+            $name = $product->sku ?? 'Luxury Capsule Piece';
+            $urlKey = $product->id;
+            $isNew = false;
+            $specialPrice = null;
+            $regularPrice = 79.00;
+        }
+
         $firstImage = $product->images->first();
         $imgUrl = $firstImage ? $firstImage->url : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80';
-        $minPrice = $product->getTypeInstance()->getMinimalPrice();
-        $specialPrice = $product->special_price;
+
+        try {
+            $minPrice = $product->getTypeInstance()->getMinimalPrice();
+            $formattedPrice = core()->formatPrice($minPrice);
+        } catch (\Throwable $e) {
+            $formattedPrice = '$79.00';
+        }
 
         return [
             'id'          => $product->id,
-            'name'        => $product->name,
-            'price'       => core()->formatPrice($minPrice),
-            'orig_price'  => ($specialPrice && $specialPrice < $product->price) ? core()->formatPrice($product->price) : null,
-            'badge'       => $specialPrice ? 'SALE' : ($product->new ? 'NEW' : 'POPULAR'),
+            'name'        => $name,
+            'price'       => $formattedPrice,
+            'orig_price'  => ($specialPrice && $specialPrice < $regularPrice) ? core()->formatPrice($regularPrice) : null,
+            'badge'       => $specialPrice ? 'SALE' : ($isNew ? 'NEW' : 'POPULAR'),
             'badge_color' => $specialPrice ? '#b83b32' : '#111111',
             'image'       => $imgUrl,
-            'url'         => route('shop.product_or_category.index', $product->url_key),
+            'url'         => route('shop.product_or_category.index', $urlKey),
             'colors'      => ['#e6b89c', '#d4a373', '#ccd5ae'],
         ];
     });
@@ -120,13 +139,27 @@
     $willaModel = \Webkul\Product\Models\Product::where('sku', 'TESTAMENT-WILLA')->first()
         ?? $dbProducts->first();
 
+    try {
+        $willaName = $willaModel ? $willaModel->name : 'Willa Playsuit';
+        $willaDescRaw = $willaModel && $willaModel->short_description ? $willaModel->short_description : 'The Willa Playsuit is the perfect fit for summer. Light, Bright and easy for relaxed occasions. Tailored from pure breathable flax linen with a flattering cinched tie-waist.';
+        $willaUrl = $willaModel ? route('shop.product_or_category.index', $willaModel->url_key) : route('shop.search.index', ['term' => 'willa']);
+        $willaPrice = $willaModel ? core()->formatPrice($willaModel->getTypeInstance()->getMinimalPrice()) : '$59.00';
+        $willaOrigPrice = ($willaModel && $willaModel->special_price) ? core()->formatPrice($willaModel->price) : '$79.00';
+    } catch (\Throwable $e) {
+        $willaName = 'Willa Playsuit';
+        $willaDescRaw = 'The Willa Playsuit is the perfect fit for summer. Light, Bright and easy for relaxed occasions. Tailored from pure breathable flax linen with a flattering cinched tie-waist.';
+        $willaUrl = route('shop.search.index', ['term' => 'willa']);
+        $willaPrice = '$59.00';
+        $willaOrigPrice = '$79.00';
+    }
+
     $willaData = [
-        'name'        => $willaModel ? $willaModel->name : 'Willa Playsuit',
-        'desc'        => $willaModel && $willaModel->short_description ? $willaModel->short_description : 'The Willa Playsuit is the perfect fit for summer. Light, Bright and easy for relaxed occasions. Tailored from pure breathable flax linen with a flattering cinched tie-waist.',
-        'price'       => $willaModel ? core()->formatPrice($willaModel->getTypeInstance()->getMinimalPrice()) : '$59.00',
-        'orig_price'  => ($willaModel && $willaModel->special_price) ? core()->formatPrice($willaModel->price) : '$79.00',
+        'name'        => $willaName,
+        'desc'        => $willaDescRaw,
+        'price'       => $willaPrice,
+        'orig_price'  => $willaOrigPrice,
         'image'       => ($willaModel && $willaModel->images->first()) ? $willaModel->images->first()->url : 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=1000&auto=format&fit=crop&q=85',
-        'url'         => $willaModel ? route('shop.product_or_category.index', $willaModel->url_key) : route('shop.search.index', ['term' => 'willa']),
+        'url'         => $willaUrl,
     ];
 
     // Dynamic Category Bubbles from DB

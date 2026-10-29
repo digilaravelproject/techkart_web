@@ -227,7 +227,9 @@ class Core
         $code = request()->query('channel');
 
         if ($code) {
-            return $this->channelRepository->findOneByField('code', $code);
+            return $this->channelRepository->findOneByField('code', $code)
+                ?: (is_numeric($code) ? $this->channelRepository->find((int) $code) : null)
+                ?: $this->getCurrentChannel();
         }
 
         return $this->getCurrentChannel();
@@ -348,7 +350,11 @@ class Core
      */
     public function getRequestedLocaleCodeInRequestedChannel()
     {
-        return $this->getRequestedChannel()->resolveLocaleCode($this->getRequestedLocaleCode());
+        $channel = $this->getRequestedChannel() ?: $this->getCurrentChannel();
+
+        return $channel
+            ? $channel->resolveLocaleCode($this->getRequestedLocaleCode())
+            : app()->getLocale();
     }
 
     /**
