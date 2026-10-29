@@ -1,696 +1,1444 @@
 @php
     $channel = core()->getCurrentChannel();
 
-    // Fetch live products for Testament Showcase via Bagisto repository
+    // Fetch active products from Bagisto repository
     $productRepo = app(\Webkul\Product\Repositories\ProductRepository::class);
-    
-    // Fetch active products properly using Bagisto product repository
-    $allProducts = $productRepo->getAll(['limit' => 24]);
+    $dbProducts = $productRepo->getAll(['limit' => 20]);
 
-    // Specific product highlights
-    $willaProduct = \Webkul\Product\Models\Product::where('sku', 'TESTAMENT-WILLA')->first() 
-        ?? $allProducts->first();
+    // Curated high-fashion fashion demo products matching Image 2 (Testament Shopify Demo)
+    $trendingCollection = [
+        [
+            'name'        => 'Aria Floral Tiered Maxi Dress',
+            'price'       => '$68.00',
+            'orig_price'  => '$88.00',
+            'badge'       => 'SALE',
+            'badge_color' => '#b83b32',
+            'image'       => 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop&q=80',
+            'url'         => route('shop.search.index', ['term' => 'dress']),
+            'colors'      => ['#e6b89c', '#d4a373', '#ccd5ae'],
+        ],
+        [
+            'name'        => 'Sienna Terracotta High-Low Sundress',
+            'price'       => '$84.00',
+            'orig_price'  => null,
+            'badge'       => 'BESTSELLER',
+            'badge_color' => '#1a1a1a',
+            'image'       => 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80',
+            'url'         => route('shop.search.index', ['term' => 'sienna']),
+            'colors'      => ['#bc6c25', '#dda15e'],
+        ],
+        [
+            'name'        => 'Blush Meadow Puff Sleeve Mini',
+            'price'       => '$72.00',
+            'orig_price'  => '$92.00',
+            'badge'       => 'SAVE 22%',
+            'badge_color' => '#b83b32',
+            'image'       => 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&auto=format&fit=crop&q=80',
+            'url'         => route('shop.search.index', ['term' => 'blush']),
+            'colors'      => ['#fcd5ce', '#f8edeb', '#faedcd'],
+        ],
+        [
+            'name'        => 'Elodie Button-Down Linen Shirt Dress',
+            'price'       => '$78.00',
+            'orig_price'  => null,
+            'badge'       => 'NEW',
+            'badge_color' => '#1a1a1a',
+            'image'       => 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&auto=format&fit=crop&q=80',
+            'url'         => route('shop.search.index', ['term' => 'elodie']),
+            'colors'      => ['#fefae0', '#faedcd', '#d4a373'],
+        ],
+    ];
 
-    // Trending & Just Arrived subsets
-    $testamentTagged = $allProducts->filter(function($p) {
-        return str_starts_with($p->sku ?? '', 'TESTAMENT-') && ($p->sku ?? '') !== 'TESTAMENT-WILLA';
-    })->values();
+    $bubbleDresses = [
+        [
+            'name'       => 'Noir Strapless Bubble Hem Mini',
+            'price'      => '$79.00',
+            'badge'      => 'LIMITED',
+            'image'      => 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80',
+            'url'        => route('shop.search.index', ['term' => 'noir']),
+        ],
+        [
+            'name'       => 'Ivory Strapless Balloon Dress',
+            'price'      => '$79.00',
+            'badge'      => 'NEW',
+            'image'      => 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=800&auto=format&fit=crop&q=80',
+            'url'        => route('shop.search.index', ['term' => 'ivory']),
+        ],
+        [
+            'name'       => 'Midnight Satin Corset Mini',
+            'price'      => '$85.00',
+            'badge'      => 'TRENDING',
+            'image'      => 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80',
+            'url'        => route('shop.search.index', ['term' => 'midnight']),
+        ],
+        [
+            'name'       => 'Scarlet Red Tiered Bubble Dress',
+            'price'      => '$89.00',
+            'badge'      => 'SELLING FAST',
+            'image'      => 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=800&auto=format&fit=crop&q=80',
+            'url'        => route('shop.search.index', ['term' => 'scarlet']),
+        ],
+    ];
 
-    $trendingProducts = $testamentTagged->count() >= 4 ? $testamentTagged->take(4) : $allProducts->take(4);
+    $categoriesBubbles = [
+        ['name' => 'Dresses', 'img' => 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&auto=format&fit=crop&q=70'],
+        ['name' => 'Tops', 'img' => 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=300&auto=format&fit=crop&q=70'],
+        ['name' => 'Playsuits', 'img' => 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=300&auto=format&fit=crop&q=70'],
+        ['name' => 'Linen Edit', 'img' => 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=300&auto=format&fit=crop&q=70'],
+        ['name' => 'Knitwear', 'img' => 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=300&auto=format&fit=crop&q=70'],
+        ['name' => 'Sale', 'img' => 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=300&auto=format&fit=crop&q=70'],
+    ];
 
-    $justArrivedProducts = $allProducts->filter(function($p) {
-        return !in_array($p->sku ?? '', ['TESTAMENT-WILLA', 'TESTAMENT-SUMMER-01']);
-    })->values()->take(4);
+    $journalArticles = [
+        [
+            'title' => 'How to Style Linen for Every Occasion',
+            'desc'  => 'From relaxed seaside mornings to candlelit al fresco dinners, discover the art of effortless linen styling.',
+            'date'  => 'OCTOBER 24, 2026',
+            'img'   => 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&auto=format&fit=crop&q=80',
+        ],
+        [
+            'title' => 'The Vacation Packing Checklist',
+            'desc'  => 'Light, versatile capsule pieces curated to take you seamlessly from flight to Mediterranean sunset.',
+            'date'  => 'OCTOBER 18, 2026',
+            'img'   => 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&auto=format&fit=crop&q=80',
+        ],
+        [
+            'title' => 'Behind the Design: The Resort Capsule',
+            'desc'  => 'Our head of design walks through the hand-painted prints, sustainable flax, and thoughtful silhouettes.',
+            'date'  => 'OCTOBER 10, 2026',
+            'img'   => 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800&auto=format&fit=crop&q=80',
+        ],
+    ];
 
-    if ($justArrivedProducts->count() < 4) {
-        $justArrivedProducts = $allProducts->slice(2, 4);
-    }
+    $instagramPhotos = [
+        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=600&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=600&auto=format&fit=crop&q=80',
+    ];
 @endphp
 
 <!-- SEO Meta Content -->
 @push ('meta')
-    <meta name="title" content="The Testament — Responsive Shopify Inspired Theme | {{ $channel->name }}" />
-    <meta name="description" content="Shop summer ready styles, trending now playsuits, dresses and fresh designs on The Testament." />
+    <meta name="title" content="The Testament — Responsive Shopify Theme | {{ $channel->name }}" />
+    <meta name="description" content="Shop summer ready styles, trending now playsuits, dresses, and fresh designs on The Testament." />
 @endPush
 
 @push ('styles')
-    <!-- Google Fonts: Cormorant Garamond for Editorial Luxury Serif & Plus Jakarta Sans for Body -->
+    <!-- Google Fonts: Cormorant Garamond (Editorial Luxury Serif) + Jost/Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --testament-serif: 'Cormorant Garamond', Georgia, serif;
-            --testament-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            --testament-bg: #fcfbf9;
-            --testament-card-bg: #f7f5f0;
-            --testament-charcoal: #121212;
-            --testament-muted: #6b665f;
-            --testament-border: #e8e4dc;
-            --testament-red: #ba3227;
-            --testament-gold: #c29d59;
+        /* ================================================================= */
+        /* PURE SELF-CONTAINED TESTAMENT THEME CSS (Zero purge dependency)   */
+        /* ================================================================= */
+        .tst-theme-wrap {
+            font-family: 'Jost', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1a1a1a;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .testament-font-serif {
-            font-family: var(--testament-serif);
+        .tst-serif {
+            font-family: 'Cormorant Garamond', Garamond, Georgia, serif;
         }
 
-        .testament-font-sans {
-            font-family: var(--testament-sans);
+        .tst-sans {
+            font-family: 'Jost', sans-serif;
         }
 
-        /* Marquee Ticker Keyframes */
-        @keyframes testamentMarquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
+        /* Announcement Bar */
+        .tst-announcement {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ebe7df;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            font-weight: 500;
+            color: #555555;
         }
 
-        .testament-marquee-track {
+        /* Clean Luxury Brand Header */
+        .tst-header {
+            background: #ffffff;
+            border-bottom: 1px solid #ebe7df;
+            padding: 24px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tst-header-inner {
+            max-width: 1380px;
+            margin: 0 auto;
             display: flex;
-            width: max-content;
-            animation: testamentMarquee 26s linear infinite;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .testament-marquee-track:hover {
-            animation-play-state: paused;
-        }
-
-        /* Luxury Button Styling */
-        .testament-btn-primary {
-            background-color: var(--testament-charcoal);
-            color: #ffffff;
-            font-family: var(--testament-sans);
-            font-size: 0.8125rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
+        .tst-brand-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 34px;
+            letter-spacing: 0.35em;
             font-weight: 600;
-            padding: 14px 34px;
-            display: inline-flex;
+            text-transform: uppercase;
+            color: #111111;
+            text-decoration: none;
+            margin: 0 auto;
+        }
+
+        .tst-nav-links {
+            display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid var(--testament-charcoal);
+            gap: 34px;
+            margin-top: 14px;
         }
 
-        .testament-btn-primary:hover {
-            background-color: transparent;
-            color: var(--testament-charcoal);
-        }
-
-        .testament-btn-outline {
-            background-color: transparent;
-            color: var(--testament-charcoal);
-            font-family: var(--testament-sans);
-            font-size: 0.8125rem;
+        .tst-nav-link {
+            font-size: 12px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            font-weight: 600;
-            padding: 14px 34px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid var(--testament-charcoal);
-        }
-
-        .testament-btn-outline:hover {
-            background-color: var(--testament-charcoal);
-            color: #ffffff;
-        }
-
-        /* Card Image Zoom Effect */
-        .testament-card-img-wrap {
-            overflow: hidden;
-            background-color: var(--testament-card-bg);
+            font-weight: 500;
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: color 0.2s ease;
             position: relative;
+            padding-bottom: 4px;
         }
 
-        .testament-card-img-wrap img {
-            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        .tst-nav-link:hover {
+            color: #b83b32;
         }
 
-        .testament-card:hover .testament-card-img-wrap img {
-            transform: scale(1.06);
+        .tst-nav-link.sale {
+            color: #b83b32;
+            font-weight: 600;
         }
 
-        /* Badges */
-        .testament-badge {
-            font-family: var(--testament-sans);
-            font-size: 0.6875rem;
-            letter-spacing: 0.12em;
+        /* Hero 1 - Full Width Editorial Slider / Banner (Matching Image 2 Top) */
+        .tst-hero-banner {
+            position: relative;
+            height: 82vh;
+            min-height: 580px;
+            max-height: 840px;
+            background-color: #e5dfd5;
+            background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&auto=format&fit=crop&q=85');
+            background-size: cover;
+            background-position: center 25%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .tst-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.35) 100%);
+        }
+
+        .tst-hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 780px;
+            padding: 30px;
+            color: #ffffff;
+        }
+
+        .tst-hero-subtitle {
+            font-size: 13px;
+            letter-spacing: 0.35em;
             text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 14px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        .tst-hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px;
+            line-height: 1.05;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            margin: 0 0 26px 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .tst-hero-title em {
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        .tst-btn-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tst-btn-black {
+            background: #111111;
+            color: #ffffff;
+            border: 1px solid #111111;
+            padding: 15px 36px;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .tst-btn-black:hover {
+            background: #ffffff;
+            color: #111111;
+            border-color: #ffffff;
+        }
+
+        .tst-btn-white {
+            background: #ffffff;
+            color: #111111;
+            border: 1px solid #ffffff;
+            padding: 15px 36px;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tst-btn-white:hover {
+            background: transparent;
+            color: #ffffff;
+        }
+
+        /* SALE NOW ON Bar with Live Countdown */
+        .tst-sale-bar {
+            background: #111111;
+            color: #ffffff;
+            padding: 18px 24px;
+            border-bottom: 1px solid #222222;
+        }
+
+        .tst-sale-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .tst-sale-headline {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tst-sale-pill {
+            background: #b83b32;
+            color: #ffffff;
+            font-family: 'Jost', sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.15em;
             font-weight: 700;
-            padding: 4px 10px;
+            padding: 3px 8px;
+            border-radius: 2px;
+        }
+
+        .tst-timer-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tst-timer-box {
+            background: #222222;
+            padding: 6px 14px;
+            border-radius: 2px;
+            text-align: center;
+            min-width: 58px;
+            border: 1px solid #333333;
+        }
+
+        .tst-timer-box.red {
+            background: #b83b32;
+            border-color: #8f2922;
+        }
+
+        .tst-timer-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            display: block;
+        }
+
+        .tst-timer-lbl {
+            font-size: 8px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #aaaaaa;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .tst-timer-box.red .tst-timer-lbl {
+            color: #f7d2d0;
+        }
+
+        /* Section Containers */
+        .tst-section {
+            padding: 80px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tst-section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .tst-section-subtitle {
+            font-size: 11px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #8c8277;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .tst-section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            color: #111111;
+            margin: 0;
+        }
+
+        .tst-section-title em {
+            font-style: italic;
+        }
+
+        /* Product Grid & Cards (Matching Image 2) */
+        .tst-product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 28px;
+        }
+
+        @media (max-width: 1024px) {
+            .tst-product-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        }
+
+        @media (max-width: 600px) {
+            .tst-product-grid { grid-template-columns: 1fr; }
+        }
+
+        .tst-card {
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .tst-card-img-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            overflow: hidden;
+            background: #f7f5f0;
+        }
+
+        .tst-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tst-card:hover .tst-card-img {
+            transform: scale(1.05);
+        }
+
+        .tst-card-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            color: #ffffff;
+            z-index: 2;
+        }
+
+        .tst-card-hover-action {
+            position: absolute;
+            bottom: 14px;
+            left: 14px;
+            right: 14px;
+            background: #ffffff;
+            color: #111111;
+            padding: 12px;
+            text-align: center;
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .tst-card:hover .tst-card-hover-action {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tst-card-body {
+            padding-top: 16px;
+            text-align: center;
+        }
+
+        .tst-card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 19px;
+            font-weight: 500;
+            color: #111111;
+            margin: 0 0 6px 0;
+            transition: color 0.2s ease;
+        }
+
+        .tst-card:hover .tst-card-title {
+            color: #b83b32;
+        }
+
+        .tst-card-price {
+            font-size: 14px;
+            font-weight: 500;
+            color: #222222;
+        }
+
+        .tst-card-orig-price {
+            text-decoration: line-through;
+            color: #999999;
+            margin-left: 8px;
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        .tst-card-colors {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tst-card-color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.15);
+        }
+
+        /* 3-Column Collection Banner Tiles (Matching Image 2) */
+        .tst-3tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 860px) {
+            .tst-3tiles-grid { grid-template-columns: 1fr; }
+        }
+
+        .tst-tile-card {
+            position: relative;
+            aspect-ratio: 3 / 4;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eee;
+        }
+
+        .tst-tile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .tst-tile-card:hover .tst-tile-img {
+            transform: scale(1.05);
+        }
+
+        .tst-tile-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            color: #111111;
+            padding: 16px 32px;
+            font-size: 12px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-decoration: none;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tst-tile-card:hover .tst-tile-btn {
+            background: #111111;
+            color: #ffffff;
+        }
+
+        /* Summer Ready Styles - Text Callout (Matching Image 2) */
+        .tst-editorial-callout {
+            background: #faf8f5;
+            border-top: 1px solid #ebe7df;
+            border-bottom: 1px solid #ebe7df;
+            padding: 70px 24px;
+            text-align: center;
+        }
+
+        .tst-editorial-callout-inner {
+            max-width: 740px;
+            margin: 0 auto;
+        }
+
+        .tst-editorial-callout h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 46px;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            margin: 0 0 18px 0;
+        }
+
+        .tst-editorial-callout p {
+            font-size: 16px;
+            color: #555555;
+            line-height: 1.7;
+            margin: 0 0 30px 0;
+        }
+
+        /* Circular Category Bubbles (Matching Image 2) */
+        .tst-bubbles-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 36px;
+            padding: 40px 20px;
+            overflow-x: auto;
+            border-bottom: 1px solid #ebe7df;
+        }
+
+        .tst-bubble-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #111111;
+            min-width: 90px;
+        }
+
+        .tst-bubble-img-wrap {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .tst-bubble-item:hover .tst-bubble-img-wrap {
+            transform: scale(1.08);
+        }
+
+        .tst-bubble-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tst-bubble-name {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Hero 2 - Mid-Page Visual Break Banner (Matching Image 2) */
+        .tst-hero-mid {
+            position: relative;
+            height: 520px;
+            background-color: #222;
+            background-image: url('https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1800&auto=format&fit=crop&q=85');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 60px 0;
+        }
+
+        /* Split Spotlight Feature: Willa Playsuit (Matching Image 2) */
+        .tst-split-spotlight {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 60px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        @media (max-width: 860px) {
+            .tst-split-spotlight { grid-template-columns: 1fr; gap: 30px; }
+        }
+
+        .tst-spotlight-text h4 {
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #8c8277;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .tst-spotlight-text h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 400;
+            margin: 0 0 20px 0;
+            line-height: 1.1;
+        }
+
+        .tst-spotlight-text p {
+            font-size: 15px;
+            color: #555555;
+            line-height: 1.7;
+            margin-bottom: 26px;
+        }
+
+        .tst-spotlight-img-wrap {
+            aspect-ratio: 4 / 5;
+            overflow: hidden;
+            background: #eee;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+
+        .tst-spotlight-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .tst-spotlight-img-wrap:hover .tst-spotlight-img {
+            transform: scale(1.04);
+        }
+
+        /* Split Buy Box Showcase (Matching Image 2 middle) */
+        .tst-split-buybox {
+            background: #faf8f5;
+            border-top: 1px solid #ebe7df;
+            border-bottom: 1px solid #ebe7df;
+            padding: 80px 24px;
+        }
+
+        .tst-split-buybox-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        @media (max-width: 860px) {
+            .tst-split-buybox-inner { grid-template-columns: 1fr; }
+        }
+
+        /* Editorial Journal / Blog Grid (Matching Image 2) */
+        .tst-journal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        @media (max-width: 860px) {
+            .tst-journal-grid { grid-template-columns: 1fr; }
+        }
+
+        .tst-journal-card {
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .tst-journal-img-wrap {
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            background: #eee;
+            margin-bottom: 16px;
+        }
+
+        .tst-journal-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+
+        .tst-journal-card:hover .tst-journal-img {
+            transform: scale(1.05);
+        }
+
+        .tst-journal-date {
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #8c8277;
+            margin-bottom: 8px;
+        }
+
+        .tst-journal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 500;
+            margin: 0 0 10px 0;
+            line-height: 1.25;
+            transition: color 0.2s;
+        }
+
+        .tst-journal-card:hover .tst-journal-title {
+            color: #b83b32;
+        }
+
+        .tst-journal-desc {
+            font-size: 13px;
+            color: #666666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Instagram Grid (Matching Image 2) */
+        .tst-insta-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-top: 36px;
+        }
+
+        @media (max-width: 900px) {
+            .tst-insta-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .tst-insta-item {
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            position: relative;
+            display: block;
+        }
+
+        .tst-insta-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .tst-insta-item:hover .tst-insta-img {
+            transform: scale(1.08);
+        }
+
+        /* Newsletter Split (Matching Image 2 Bottom) */
+        .tst-newsletter-split {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            border-top: 1px solid #ebe7df;
+            background: #faf8f5;
+        }
+
+        @media (max-width: 860px) {
+            .tst-newsletter-split { grid-template-columns: 1fr; }
+        }
+
+        .tst-newsletter-img {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            object-fit: cover;
+        }
+
+        .tst-newsletter-form-wrap {
+            padding: 80px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .tst-newsletter-form-wrap h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 44px;
+            margin: 0 0 16px 0;
+            font-weight: 400;
+        }
+
+        .tst-newsletter-form-wrap p {
+            font-size: 15px;
+            color: #666666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .tst-input-row {
+            display: flex;
+            max-width: 460px;
+        }
+
+        .tst-input-email {
+            flex: 1;
+            padding: 15px 18px;
+            border: 1px solid #111111;
+            border-right: none;
+            font-family: 'Jost', sans-serif;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .tst-input-btn {
+            background: #111111;
+            color: #ffffff;
+            border: 1px solid #111111;
+            padding: 15px 28px;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tst-input-btn:hover {
+            background: #ffffff;
+            color: #111111;
+        }
+
+        /* Luxury Dark Footer (Matching Image 2) */
+        .tst-footer {
+            background: #111111;
+            color: #ffffff;
+            padding: 80px 24px 30px 24px;
+        }
+
+        .tst-footer-grid {
+            max-width: 1380px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 50px;
+            padding-bottom: 60px;
+            border-bottom: 1px solid #222222;
+        }
+
+        @media (max-width: 900px) {
+            .tst-footer-grid { grid-template-columns: 1fr; gap: 36px; }
+        }
+
+        .tst-footer h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            letter-spacing: 0.1em;
+            margin: 0 0 20px 0;
+            font-weight: 500;
+        }
+
+        .tst-footer p, .tst-footer a {
+            font-size: 13px;
+            color: #999999;
+            text-decoration: none;
+            line-height: 1.8;
+            display: block;
+            transition: color 0.2s;
+        }
+
+        .tst-footer a:hover {
+            color: #ffffff;
+        }
+
+        .tst-footer-bottom {
+            max-width: 1380px;
+            margin: 30px auto 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666666;
+            flex-wrap: wrap;
+            gap: 16px;
         }
     </style>
 @endpush
 
-<x-shop::layouts>
+<x-shop::layouts :has-header="false" :has-footer="false">
     <!-- Page Title -->
     <x-slot:title>
-        The Testament | {{ $channel->name }} — Responsive Shopify Fashion Theme
+        The Testament | Responsive Shopify Theme Demo
     </x-slot>
 
-    <div class="testament-font-sans bg-[#fcfbf9] text-[#121212] antialiased">
+    <div class="tst-theme-wrap">
 
         <!-- ================================================================= -->
-        <!-- 1. TOP FLASH SALE & COUNTDOWN TIMER BAR ("SALE NOW ON")          -->
+        <!-- 1. ANNOUNCEMENT BAR                                               -->
         <!-- ================================================================= -->
-        <section class="border-b border-[#e8e4dc] bg-[#121212] px-4 py-4 text-white">
-            <div class="container mx-auto flex flex-col items-center justify-between gap-4 md:flex-row md:px-8">
-                <!-- Headline -->
-                <div class="flex items-center gap-3">
-                    <span class="inline-block h-2 w-2 animate-ping rounded-full bg-[#ba3227]"></span>
-                    <span class="testament-badge bg-[#ba3227] text-white">LIMITED TIME</span>
-                    <h2 class="testament-font-serif text-xl font-medium tracking-wider md:text-2xl">
-                        SALE NOW ON
-                    </h2>
-                    <span class="hidden text-xs text-stone-400 md:inline">|</span>
-                    <span class="hidden text-xs tracking-widest text-stone-300 uppercase lg:inline">
-                        Use Code <strong class="text-white">SUMMER50</strong> at checkout
-                    </span>
+        <div class="tst-announcement">
+            COMPLIMENTARY WORLDWIDE SHIPPING ON ORDERS OVER $150 • CODE: SUMMER50
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- 2. LUXURY TESTAMENT HEADER (Matching Image 2)                    -->
+        <!-- ================================================================= -->
+        <header class="tst-header">
+            <div class="tst-header-inner">
+                <!-- Left: Currency -->
+                <div style="font-size: 11px; letter-spacing: 0.18em; font-weight: 500; text-transform: uppercase;">
+                    USD $ &nbsp; | &nbsp; EN
+                </div>
+
+                <!-- Center: Serif Brand Logo -->
+                <a href="{{ route('shop.home.index') }}" class="tst-brand-logo">
+                    T E S T A M E N T
+                </a>
+
+                <!-- Right: Icons -->
+                <div style="display: flex; align-items: center; gap: 20px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500;">
+                    <a href="{{ route('shop.search.index') }}" style="color: inherit; text-decoration: none;">SEARCH</a>
+                    <a href="{{ route('shop.customer.session.index') }}" style="color: inherit; text-decoration: none;">ACCOUNT</a>
+                    <a href="{{ route('shop.checkout.cart.index') }}" style="color: inherit; text-decoration: none; font-weight: 600;">BAG (0)</a>
+                </div>
+            </div>
+
+            <!-- Centered Nav Menu -->
+            <nav class="tst-nav-links">
+                <a href="{{ route('shop.search.index', ['term' => 'new']) }}" class="tst-nav-link">NEW IN</a>
+                <a href="{{ route('shop.search.index', ['term' => 'dress']) }}" class="tst-nav-link">DRESSES</a>
+                <a href="{{ route('shop.search.index', ['term' => 'playsuit']) }}" class="tst-nav-link">PLAYSUITS</a>
+                <a href="{{ route('shop.search.index', ['term' => 'linen']) }}" class="tst-nav-link">SUMMER EDIT</a>
+                <a href="#lookbook" class="tst-nav-link">LOOKBOOK</a>
+                <a href="#sale" class="tst-nav-link sale">SALE - UP TO 50%</a>
+            </nav>
+        </header>
+
+
+        <!-- ================================================================= -->
+        <!-- 3. HERO SECTION (Matching Image 2 Top Full Banner)                -->
+        <!-- ================================================================= -->
+        <section class="tst-hero-banner">
+            <div class="tst-hero-overlay"></div>
+            <div class="tst-hero-content">
+                <span class="tst-hero-subtitle">SUMMER CAPSULE 2026</span>
+                <h1 class="tst-hero-title">
+                    Fresh New Arrivals <br/>
+                    <em>Effortless Elegance</em>
+                </h1>
+                <div class="tst-btn-group">
+                    <a href="#trending" class="tst-btn-white">Shop New In</a>
+                    <a href="#summer-styles" class="tst-btn-black">Explore Lookbook</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 4. SALE NOW ON BAR WITH LIVE COUNTDOWN TIMER                      -->
+        <!-- ================================================================= -->
+        <section id="sale" class="tst-sale-bar">
+            <div class="tst-sale-inner">
+                <div class="tst-sale-headline">
+                    <span class="tst-sale-pill">LIMITED TIME</span>
+                    SALE NOW ON
                 </div>
 
                 <!-- Live Countdown Timer -->
-                <div class="flex items-center gap-2 text-center md:gap-3">
-                    <!-- Days -->
-                    <div class="flex min-w-[54px] flex-col rounded bg-stone-900/90 px-2.5 py-1.5 border border-stone-800">
-                        <span id="testament-days" class="testament-font-serif text-lg font-bold leading-none text-white md:text-xl">00</span>
-                        <span class="text-[9px] tracking-wider text-stone-400 uppercase">Days</span>
+                <div class="tst-timer-wrap">
+                    <div class="tst-timer-box">
+                        <span id="tst-days" class="tst-timer-num">00</span>
+                        <span class="tst-timer-lbl">Days</span>
                     </div>
-                    <span class="text-stone-500 font-bold">:</span>
-                    <!-- Hours -->
-                    <div class="flex min-w-[54px] flex-col rounded bg-stone-900/90 px-2.5 py-1.5 border border-stone-800">
-                        <span id="testament-hours" class="testament-font-serif text-lg font-bold leading-none text-white md:text-xl">16</span>
-                        <span class="text-[9px] tracking-wider text-stone-400 uppercase">Hours</span>
+                    <span>:</span>
+                    <div class="tst-timer-box">
+                        <span id="tst-hours" class="tst-timer-num">16</span>
+                        <span class="tst-timer-lbl">Hours</span>
                     </div>
-                    <span class="text-stone-500 font-bold">:</span>
-                    <!-- Mins -->
-                    <div class="flex min-w-[54px] flex-col rounded bg-stone-900/90 px-2.5 py-1.5 border border-stone-800">
-                        <span id="testament-mins" class="testament-font-serif text-lg font-bold leading-none text-white md:text-xl">43</span>
-                        <span class="text-[9px] tracking-wider text-stone-400 uppercase">Mins</span>
+                    <span>:</span>
+                    <div class="tst-timer-box">
+                        <span id="tst-mins" class="tst-timer-num">43</span>
+                        <span class="tst-timer-lbl">Mins</span>
                     </div>
-                    <span class="text-stone-500 font-bold">:</span>
-                    <!-- Secs -->
-                    <div class="flex min-w-[54px] flex-col rounded bg-[#ba3227] px-2.5 py-1.5 border border-red-900">
-                        <span id="testament-secs" class="testament-font-serif text-lg font-bold leading-none text-white md:text-xl">54</span>
-                        <span class="text-[9px] tracking-wider text-red-200 uppercase">Secs</span>
+                    <span>:</span>
+                    <div class="tst-timer-box red">
+                        <span id="tst-secs" class="tst-timer-num">54</span>
+                        <span class="tst-timer-lbl">Secs</span>
                     </div>
                 </div>
 
-                <!-- CTA Link -->
-                <a href="#trending-now" class="text-xs font-semibold tracking-widest text-[#c29d59] uppercase hover:underline">
-                    Shop The Sale &rarr;
+                <a href="{{ route('shop.search.index') }}" style="color: #ffffff; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; text-decoration: underline;">
+                    Shop The Flash Sale &rarr;
                 </a>
             </div>
         </section>
 
 
         <!-- ================================================================= -->
-        <!-- 2. INFINITE TICKER MARQUEE BAR                                   -->
+        <!-- 5. TRENDING NOW (4-COLUMN EDITORIAL PRODUCT GRID - Image 2)      -->
         <!-- ================================================================= -->
-        <div class="relative overflow-hidden border-b border-[#e8e4dc] bg-[#f7f5f0] py-2.5 text-xs font-semibold tracking-[0.2em] uppercase text-[#121212]">
-            <div class="testament-marquee-track">
-                @for ($i = 0; $i < 4; $i++)
-                    <div class="flex items-center gap-10 pr-10">
-                        <span class="flex items-center gap-2 text-[#ba3227]">
-                            <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z"/></svg>
-                            FLASH SALE - SAVE 17%
-                        </span>
-                        <span class="text-stone-400">•</span>
-                        <span class="flex items-center gap-2">
-                            PRE ORDER &amp; SAVE 22%
-                        </span>
-                        <span class="text-stone-400">•</span>
-                        <span class="flex items-center gap-2 text-[#ba3227]">
-                            14% OFF TODAY ONLY - HURRY!
-                        </span>
-                        <span class="text-stone-400">•</span>
-                        <span class="flex items-center gap-2">
-                            FREE WORLDWIDE SHIPPING OVER $100
-                        </span>
-                        <span class="text-stone-400">•</span>
-                    </div>
-                @endfor
+        <section id="trending" class="tst-section">
+            <div class="tst-section-header">
+                <span class="tst-section-subtitle">SUMMER FAVORITES</span>
+                <h2 class="tst-section-title">Trending Now</h2>
             </div>
+
+            <div class="tst-product-grid">
+                @foreach ($trendingCollection as $item)
+                    <a href="{{ $item['url'] }}" class="tst-card">
+                        <div class="tst-card-img-wrap">
+                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="tst-card-img" loading="lazy" />
+                            <span class="tst-card-badge" style="background-color: {{ $item['badge_color'] }};">
+                                {{ $item['badge'] }}
+                            </span>
+                            <div class="tst-card-hover-action">
+                                Quick View
+                            </div>
+                        </div>
+                        <div class="tst-card-body">
+                            <h3 class="tst-card-title">{{ $item['name'] }}</h3>
+                            <div class="tst-card-price">
+                                {{ $item['price'] }}
+                                @if ($item['orig_price'])
+                                    <span class="tst-card-orig-price">{{ $item['orig_price'] }}</span>
+                                @endif
+                            </div>
+                            <div class="tst-card-colors">
+                                @foreach ($item['colors'] as $dot)
+                                    <span class="tst-card-color-dot" style="background-color: {{ $dot }};"></span>
+                                @endforeach
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 6. 3-COLUMN CATEGORY TILES (Matching Image 2 middle)              -->
+        <!-- ================================================================= -->
+        <section class="tst-section" style="padding-top: 0;">
+            <div class="tst-3tiles-grid">
+                <!-- Tile 1 -->
+                <div class="tst-tile-card">
+                    <img src="https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=800&auto=format&fit=crop&q=80" alt="Shop Tops" class="tst-tile-img" />
+                    <a href="{{ route('shop.search.index', ['term' => 'top']) }}" class="tst-tile-btn">Shop Tops</a>
+                </div>
+                <!-- Tile 2 -->
+                <div class="tst-tile-card">
+                    <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&auto=format&fit=crop&q=80" alt="Shop Knitwear" class="tst-tile-img" />
+                    <a href="{{ route('shop.search.index', ['term' => 'knitwear']) }}" class="tst-tile-btn">Shop Knitwear</a>
+                </div>
+                <!-- Tile 3 -->
+                <div class="tst-tile-card">
+                    <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&auto=format&fit=crop&q=80" alt="Shop Playsuits" class="tst-tile-img" />
+                    <a href="{{ route('shop.search.index', ['term' => 'playsuit']) }}" class="tst-tile-btn">Shop Playsuits</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 7. SUMMER READY STYLES (EDITORIAL CALLOUT - Matching Image 2)    -->
+        <!-- ================================================================= -->
+        <section id="summer-styles" class="tst-editorial-callout">
+            <div class="tst-editorial-callout-inner">
+                <span class="tst-section-subtitle">THE NEW CAPSULE</span>
+                <h3>Summer Ready Styles</h3>
+                <p>
+                    Embrace the season in style with our latest collection, curated to keep you looking 
+                    <strong style="color: #111111; font-style: italic;">effortlessly chic</strong> 
+                    all summer long. Save up to 50% in our end of season sale event.
+                </p>
+                <a href="{{ route('shop.search.index') }}" class="tst-btn-black">
+                    Start Shopping
+                </a>
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 8. CIRCULAR CATEGORY BUBBLES BAR (Matching Image 2)               -->
+        <!-- ================================================================= -->
+        <div class="tst-bubbles-bar">
+            @foreach ($categoriesBubbles as $bubble)
+                <a href="{{ route('shop.search.index', ['term' => $bubble['name']]) }}" class="tst-bubble-item">
+                    <div class="tst-bubble-img-wrap">
+                        <img src="{{ $bubble['img'] }}" alt="{{ $bubble['name'] }}" class="tst-bubble-img" />
+                    </div>
+                    <span class="tst-bubble-name">{{ $bubble['name'] }}</span>
+                </a>
+            @endforeach
         </div>
 
 
         <!-- ================================================================= -->
-        <!-- 3. SUMMER READY STYLES (HERO EDITORIAL SECTION)                  -->
+        <!-- 9. FULL-WIDTH EDITORIAL BREAK BANNER (HERO 2 - Image 2)          -->
         <!-- ================================================================= -->
-        <section class="border-b border-[#e8e4dc] bg-[#fcfbf9]">
-            <div class="container mx-auto px-4 py-16 md:px-8 md:py-24">
-                <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
-                    <!-- Left: Editorial Content -->
-                    <div class="flex flex-col items-start justify-center lg:col-span-6 lg:pr-8">
-                        <div class="mb-3 flex items-center gap-2">
-                            <span class="h-px w-8 bg-[#c29d59]"></span>
-                            <span class="text-xs font-semibold tracking-[0.25em] text-[#c29d59] uppercase">
-                                New Season Capsule
+        <section class="tst-hero-mid">
+            <div class="tst-hero-overlay" style="background: rgba(0,0,0,0.3);"></div>
+            <div class="tst-hero-content">
+                <span class="tst-hero-subtitle">TIMELESS ELEGANCE</span>
+                <h2 class="tst-hero-title" style="font-size: 52px;">
+                    Modern Classics <br/>
+                    <em>Resort &amp; Evening</em>
+                </h2>
+                <div class="tst-btn-group">
+                    <a href="{{ route('shop.search.index') }}" class="tst-btn-white">Shop The Collection</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 10. SPLIT SPOTLIGHT FEATURE: WILLA PLAYSUIT (Image 2)            -->
+        <!-- ================================================================= -->
+        <section class="tst-split-spotlight">
+            <div class="tst-spotlight-text">
+                <h4>THERES MORE TO EXPLORE</h4>
+                <h2>Willa Playsuit</h2>
+                <p>
+                    The Willa Playsuit is the perfect fit for summer. Light, 
+                    <span style="font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: #111;">Bright and easy</span> 
+                    for relaxed occasions. Made from pure breathable flax linen with a flattering cinched tie-waist.
+                </p>
+                <div style="font-size: 26px; font-family: 'Cormorant Garamond', serif; font-weight: 700; color: #b83b32; margin-bottom: 24px;">
+                    $59.00 <span style="font-size: 16px; text-decoration: line-through; color: #999; margin-left: 8px;">$79.00</span>
+                </div>
+                <a href="{{ route('shop.search.index', ['term' => 'willa']) }}" class="tst-btn-black">
+                    Shop Now
+                </a>
+            </div>
+
+            <div class="tst-spotlight-img-wrap">
+                <img src="https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=1000&auto=format&fit=crop&q=85" alt="Willa Playsuit" class="tst-spotlight-img" />
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 11. JUST ARRIVED / BUBBLE DRESSES 4-COLUMN (Matching Image 2)    -->
+        <!-- ================================================================= -->
+        <section class="tst-section">
+            <div class="tst-section-header">
+                <span class="tst-section-subtitle">NEW SILHOUETTES</span>
+                <h2 class="tst-section-title">Just Arrived</h2>
+            </div>
+
+            <div class="tst-product-grid">
+                @foreach ($bubbleDresses as $dress)
+                    <a href="{{ $dress['url'] }}" class="tst-card">
+                        <div class="tst-card-img-wrap">
+                            <img src="{{ $dress['image'] }}" alt="{{ $dress['name'] }}" class="tst-card-img" loading="lazy" />
+                            <span class="tst-card-badge" style="background-color: #111111;">
+                                {{ $dress['badge'] }}
                             </span>
-                        </div>
-
-                        <h1 class="testament-font-serif text-4xl leading-[1.1] font-normal tracking-tight text-[#121212] sm:text-5xl md:text-6xl">
-                            Summer Ready <br />
-                            <span class="italic font-light">Styles</span>
-                        </h1>
-
-                        <p class="mt-6 text-base leading-relaxed text-[#59554f] md:text-lg">
-                            Embrace the season in style with our latest collection, curated to keep you looking 
-                            <span class="testament-font-serif text-xl italic font-semibold text-[#121212]">
-                                effortlessly chic
-                            </span> 
-                            all summer long.
-                        </p>
-
-                        <div class="mt-6 inline-flex items-center gap-3 rounded-full bg-[#f1ebe1] px-4 py-2 text-xs font-semibold tracking-wider text-[#121212] uppercase">
-                            <span class="h-2 w-2 rounded-full bg-[#ba3227]"></span>
-                            Save up to 50% in our end of season sale
-                        </div>
-
-                        <div class="mt-10 flex flex-wrap items-center gap-4">
-                            <a href="#trending-now" class="testament-btn-primary">
-                                Start Shopping
-                            </a>
-                            <a href="#new-prints" class="testament-btn-outline">
-                                View Lookbook
-                            </a>
-                        </div>
-
-                        <!-- Micro Stats / Highlights -->
-                        <div class="mt-12 grid grid-cols-3 gap-6 border-t border-[#e8e4dc] pt-8 text-center sm:text-left">
-                            <div>
-                                <p class="testament-font-serif text-2xl font-bold text-[#121212]">100%</p>
-                                <p class="text-[11px] tracking-wider text-[#6b665f] uppercase">Pure Flax Linen</p>
-                            </div>
-                            <div>
-                                <p class="testament-font-serif text-2xl font-bold text-[#121212]">24h</p>
-                                <p class="text-[11px] tracking-wider text-[#6b665f] uppercase">Dispatch Time</p>
-                            </div>
-                            <div>
-                                <p class="testament-font-serif text-2xl font-bold text-[#121212]">4.9★</p>
-                                <p class="text-[11px] tracking-wider text-[#6b665f] uppercase">Customer Rating</p>
+                            <div class="tst-card-hover-action">
+                                Quick View
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Right: Editorial Image Collage -->
-                    <div class="lg:col-span-6">
-                        <div class="grid grid-cols-2 gap-4 md:gap-6">
-                            <div class="relative overflow-hidden rounded-sm shadow-md">
-                                <img
-                                    src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=900&auto=format&fit=crop"
-                                    alt="Summer Ready Linen Style"
-                                    class="h-[380px] w-full object-cover transition-transform duration-700 hover:scale-105 sm:h-[460px]"
-                                />
-                                <div class="absolute bottom-3 left-3 bg-white/95 px-3 py-1.5 text-[10px] font-bold tracking-widest text-[#121212] uppercase backdrop-blur-sm">
-                                    Linen Edit
-                                </div>
-                            </div>
-                            <div class="relative mt-8 overflow-hidden rounded-sm shadow-md sm:mt-12">
-                                <img
-                                    src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&auto=format&fit=crop"
-                                    alt="Willa Playsuit Look"
-                                    class="h-[380px] w-full object-cover transition-transform duration-700 hover:scale-105 sm:h-[460px]"
-                                />
-                                <div class="absolute bottom-3 left-3 bg-[#121212] px-3 py-1.5 text-[10px] font-bold tracking-widest text-white uppercase">
-                                    Playsuits
-                                </div>
+                        <div class="tst-card-body">
+                            <h3 class="tst-card-title">{{ $dress['name'] }}</h3>
+                            <div class="tst-card-price">
+                                {{ $dress['price'] }}
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </a>
+                @endforeach
             </div>
         </section>
 
 
         <!-- ================================================================= -->
-        <!-- 4. TRENDING NOW (PRODUCT CAROUSEL / GRID)                        -->
+        <!-- 12. SPLIT BUY BOX / PRODUCT SHOWCASE (Image 2)                   -->
         <!-- ================================================================= -->
-        <section id="trending-now" class="border-b border-[#e8e4dc] bg-white py-16 md:py-24">
-            <div class="container mx-auto px-4 md:px-8">
-                <!-- Section Header -->
-                <div class="mb-12 flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
-                    <div>
-                        <span class="text-xs font-semibold tracking-[0.25em] text-[#ba3227] uppercase">
-                            Curated Favorites
-                        </span>
-                        <h2 class="testament-font-serif text-3xl font-medium tracking-tight text-[#121212] md:text-4xl">
-                            Trending Now
-                        </h2>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <a href="{{ route('shop.search.index') }}" class="text-xs font-semibold tracking-widest text-[#121212] uppercase hover:underline">
-                            Explore All Products &rarr;
-                        </a>
-                    </div>
+        <section class="tst-split-buybox">
+            <div class="tst-split-buybox-inner">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <img src="https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop&q=80" style="width: 100%; aspect-ratio: 3/4; object-fit: cover;" alt="Lookbook 1" />
+                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80" style="width: 100%; aspect-ratio: 3/4; object-fit: cover;" alt="Lookbook 2" />
                 </div>
-
-                <!-- Product Grid -->
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-                    @foreach ($trendingProducts as $product)
-                        @php
-                            $images = $product->images;
-                            $firstImage = $images->first();
-                            $imgUrl = $firstImage ? $firstImage->url : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop';
-                            $productUrl = route('shop.product_or_category.index', $product->url_key);
-                            $priceHtml = core()->formatPrice($product->price);
-                            $specialPriceHtml = $product->special_price ? core()->formatPrice($product->special_price) : null;
-                        @endphp
-
-                        <div class="testament-card group flex flex-col">
-                            <!-- Image Wrap -->
-                            <div class="testament-card-img-wrap relative aspect-[3/4] w-full rounded-sm">
-                                <a href="{{ $productUrl }}">
-                                    <img
-                                        src="{{ $imgUrl }}"
-                                        alt="{{ $product->name }}"
-                                        class="h-full w-full object-cover"
-                                        loading="lazy"
-                                    />
-                                </a>
-
-                                <!-- Badges -->
-                                <div class="absolute top-3 left-3 flex flex-col gap-1">
-                                    @if ($specialPriceHtml)
-                                        <span class="testament-badge bg-[#ba3227] text-white">
-                                            SALE -20%
-                                        </span>
-                                    @else
-                                        <span class="testament-badge bg-[#121212] text-white">
-                                            TRENDING
-                                        </span>
-                                    @endif
-                                </div>
-
-                                <!-- Quick View / Add to Cart Overlay on Hover -->
-                                <div class="absolute inset-x-3 bottom-3 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                                    <a
-                                        href="{{ $productUrl }}"
-                                        class="block w-full bg-white/95 py-2.5 text-center text-xs font-semibold tracking-widest text-[#121212] uppercase shadow-md backdrop-blur hover:bg-[#121212] hover:text-white"
-                                    >
-                                        Quick View
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Details -->
-                            <div class="mt-4 flex flex-1 flex-col">
-                                <a href="{{ $productUrl }}" class="testament-font-serif text-lg font-medium text-[#121212] transition-colors hover:text-[#c29d59]">
-                                    {{ $product->name }}
-                                </a>
-
-                                <p class="mt-1 line-clamp-1 text-xs text-[#6b665f]">
-                                    {{ $product->short_description ?? 'Summer essential luxury styling.' }}
-                                </p>
-
-                                <div class="mt-3 flex items-center gap-2.5">
-                                    @if ($specialPriceHtml)
-                                        <span class="text-sm font-bold text-[#ba3227]">
-                                            {{ $specialPriceHtml }}
-                                        </span>
-                                        <span class="text-xs text-[#9c968d] line-through">
-                                            {{ $priceHtml }}
-                                        </span>
-                                    @else
-                                        <span class="text-sm font-semibold text-[#121212]">
-                                            {{ $priceHtml }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ================================================================= -->
-        <!-- 5. NEW PRINTS (EDITORIAL PROMOTIONAL BANNER)                     -->
-        <!-- ================================================================= -->
-        <section id="new-prints" class="relative overflow-hidden border-b border-[#e8e4dc] bg-[#f7f5f0] py-20 md:py-28">
-            <div class="container mx-auto px-4 md:px-8">
-                <div class="relative z-10 mx-auto max-w-3xl text-center">
-                    <span class="text-xs font-semibold tracking-[0.3em] text-[#ba3227] uppercase">
-                        Exclusive Release
-                    </span>
-
-                    <h2 class="testament-font-serif mt-3 text-4xl leading-tight font-normal text-[#121212] sm:text-5xl md:text-6xl">
-                        Shop <span class="italic font-light">Fresh Designs</span>: <br class="hidden sm:inline"/>
-                        New Prints Just Added!
-                    </h2>
-
-                    <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-[#59554f] md:text-lg">
-                        From delicate hand-painted botanicals to sun-drenched coastal motifs, explore our freshest prints created for summer adventures.
+                <div>
+                    <span class="tst-section-subtitle">FEATURED EDIT</span>
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 38px; margin: 0 0 16px 0; font-weight: 500;">
+                        Linen Resort Co-Ord Set
+                    </h3>
+                    <p style="font-size: 15px; color: #555; line-height: 1.7; margin-bottom: 20px;">
+                        The quintessential relaxed summer outfit. Tailored from 100% natural European flax linen with shell buttons and relaxed pleating.
                     </p>
-
-                    <div class="mt-10 flex flex-wrap justify-center gap-4">
-                        <a href="{{ route('shop.search.index') }}" class="testament-btn-primary">
-                            Shop Now
-                        </a>
-                        <a href="{{ route('shop.search.index') }}" class="testament-btn-outline">
-                            View Print Collection
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Subtle background decorative motif -->
-            <div class="pointer-events-none absolute inset-0 opacity-10 bg-[radial-gradient(#121212_1px,transparent_1px)] [background-size:16px_16px]"></div>
-        </section>
-
-
-        <!-- ================================================================= -->
-        <!-- 6. JUST ARRIVED (PRODUCT GRID)                                   -->
-        <!-- ================================================================= -->
-        <section class="border-b border-[#e8e4dc] bg-white py-16 md:py-24">
-            <div class="container mx-auto px-4 md:px-8">
-                <!-- Section Header -->
-                <div class="mb-12 flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
-                    <div>
-                        <span class="text-xs font-semibold tracking-[0.25em] text-[#c29d59] uppercase">
-                            Fresh From Studio
-                        </span>
-                        <h2 class="testament-font-serif text-3xl font-medium tracking-tight text-[#121212] md:text-4xl">
-                            Just Arrived
-                        </h2>
-                    </div>
-                    <div>
-                        <a href="{{ route('shop.search.index') }}" class="text-xs font-semibold tracking-widest text-[#121212] uppercase hover:underline">
-                            View New Arrivals &rarr;
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product Grid -->
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-                    @foreach ($justArrivedProducts as $product)
-                        @php
-                            $images = $product->images;
-                            $firstImage = $images->first();
-                            $imgUrl = $firstImage ? $firstImage->url : 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop';
-                            $productUrl = route('shop.product_or_category.index', $product->url_key);
-                            $priceHtml = core()->formatPrice($product->price);
-                            $specialPriceHtml = $product->special_price ? core()->formatPrice($product->special_price) : null;
-                        @endphp
-
-                        <div class="testament-card group flex flex-col">
-                            <!-- Image Wrap -->
-                            <div class="testament-card-img-wrap relative aspect-[3/4] w-full rounded-sm">
-                                <a href="{{ $productUrl }}">
-                                    <img
-                                        src="{{ $imgUrl }}"
-                                        alt="{{ $product->name }}"
-                                        class="h-full w-full object-cover"
-                                        loading="lazy"
-                                    />
-                                </a>
-
-                                <!-- Badges -->
-                                <div class="absolute top-3 left-3 flex flex-col gap-1">
-                                    <span class="testament-badge bg-[#121212] text-white">
-                                        JUST IN
-                                    </span>
-                                </div>
-
-                                <!-- Quick View Overlay -->
-                                <div class="absolute inset-x-3 bottom-3 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                                    <a
-                                        href="{{ $productUrl }}"
-                                        class="block w-full bg-white/95 py-2.5 text-center text-xs font-semibold tracking-widest text-[#121212] uppercase shadow-md backdrop-blur hover:bg-[#121212] hover:text-white"
-                                    >
-                                        Quick View
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Details -->
-                            <div class="mt-4 flex flex-1 flex-col">
-                                <a href="{{ $productUrl }}" class="testament-font-serif text-lg font-medium text-[#121212] transition-colors hover:text-[#c29d59]">
-                                    {{ $product->name }}
-                                </a>
-
-                                <p class="mt-1 line-clamp-1 text-xs text-[#6b665f]">
-                                    {{ $product->short_description ?? 'Designed for relaxed occasions and sunny days.' }}
-                                </p>
-
-                                <div class="mt-3 flex items-center gap-2.5">
-                                    @if ($specialPriceHtml)
-                                        <span class="text-sm font-bold text-[#ba3227]">
-                                            {{ $specialPriceHtml }}
-                                        </span>
-                                        <span class="text-xs text-[#9c968d] line-through">
-                                            {{ $priceHtml }}
-                                        </span>
-                                    @else
-                                        <span class="text-sm font-semibold text-[#121212]">
-                                            {{ $priceHtml }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                    <div style="font-size: 24px; font-weight: 600; margin-bottom: 26px;">$94.00</div>
+                    <a href="{{ route('shop.search.index') }}" class="tst-btn-black">
+                        Add to Bag &bull; $94.00
+                    </a>
                 </div>
             </div>
         </section>
 
 
         <!-- ================================================================= -->
-        <!-- 7. THERES MORE TO EXPLORE — WILLA PLAYSUIT SPOTLIGHT            -->
+        <!-- 13. EDITORIAL FROM THE JOURNAL (Matching Image 2)                -->
         <!-- ================================================================= -->
-        @php
-            $willaImg = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1000&auto=format&fit=crop';
-            if ($willaProduct && $willaProduct->images->first()) {
-                $willaImg = $willaProduct->images->first()->url;
-            }
-            $willaUrl = $willaProduct ? route('shop.product_or_category.index', $willaProduct->url_key) : route('shop.search.index');
-        @endphp
+        <section id="lookbook" class="tst-section">
+            <div class="tst-section-header">
+                <span class="tst-section-subtitle">STORIES &amp; INSPIRATION</span>
+                <h2 class="tst-section-title">From The Journal</h2>
+            </div>
 
-        <section class="border-b border-[#e8e4dc] bg-[#fcfbf9] py-20 md:py-28">
-            <div class="container mx-auto px-4 md:px-8">
-                <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
-                    <!-- Left: Hero Imagery -->
-                    <div class="lg:col-span-7">
-                        <div class="relative overflow-hidden rounded-sm shadow-xl">
-                            <img
-                                src="{{ $willaImg }}"
-                                alt="Willa Playsuit Showcase"
-                                class="h-[460px] w-full object-cover transition-transform duration-700 hover:scale-105 sm:h-[580px]"
-                            />
-                            <div class="absolute top-4 left-4">
-                                <span class="testament-badge bg-[#121212] text-white">
-                                    HERO PIECE OF THE SEASON
-                                </span>
-                            </div>
+            <div class="tst-journal-grid">
+                @foreach ($journalArticles as $article)
+                    <div class="tst-journal-card">
+                        <div class="tst-journal-img-wrap">
+                            <img src="{{ $article['img'] }}" alt="{{ $article['title'] }}" class="tst-journal-img" loading="lazy" />
                         </div>
+                        <span class="tst-journal-date">{{ $article['date'] }}</span>
+                        <h4 class="tst-journal-title">{{ $article['title'] }}</h4>
+                        <p class="tst-journal-desc">{{ $article['desc'] }}</p>
                     </div>
-
-                    <!-- Right: Storytelling & CTA -->
-                    <div class="flex flex-col items-start justify-center lg:col-span-5">
-                        <span class="text-xs font-semibold tracking-[0.25em] text-[#c29d59] uppercase">
-                            Theres more to explore
-                        </span>
-
-                        <h2 class="testament-font-serif mt-3 text-4xl leading-tight font-normal text-[#121212] sm:text-5xl">
-                            Willa Playsuit
-                        </h2>
-
-                        <p class="mt-6 text-base leading-relaxed text-[#59554f] md:text-lg">
-                            The Willa Playsuit is the perfect fit for summer. Light, 
-                            <span class="testament-font-serif text-xl italic font-semibold text-[#121212]">
-                                Bright and easy
-                            </span> 
-                            for relaxed occasions.
-                        </p>
-
-                        <div class="mt-6 flex items-center gap-4 text-sm font-medium text-[#121212]">
-                            <span class="flex items-center gap-1 text-[#ba3227]">
-                                <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                5.0 (128 Reviews)
-                            </span>
-                            <span>•</span>
-                            <span>In Stock & Ready to Ship</span>
-                        </div>
-
-                        <div class="mt-8 flex items-baseline gap-3">
-                            <span class="testament-font-serif text-3xl font-bold text-[#ba3227]">
-                                $59.00
-                            </span>
-                            <span class="text-base text-[#9c968d] line-through">
-                                $79.00
-                            </span>
-                            <span class="testament-badge bg-[#ba3227] text-white">
-                                SAVE $20
-                            </span>
-                        </div>
-
-                        <div class="mt-10 flex flex-wrap gap-4">
-                            <a href="{{ $willaUrl }}" class="testament-btn-primary">
-                                Shop Now
-                            </a>
-                            <a href="{{ route('shop.search.index') }}" class="testament-btn-outline">
-                                View Playsuit Collection
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </section>
 
 
         <!-- ================================================================= -->
-        <!-- 8. BRAND VALUES / PILLARS BAR                                    -->
+        <!-- 14. INSTAGRAM SOCIAL FEED GRID (Matching Image 2)                -->
         <!-- ================================================================= -->
-        <section class="border-b border-[#e8e4dc] bg-white py-12">
-            <div class="container mx-auto px-4 md:px-8">
-                <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                    <!-- 1 -->
-                    <div class="flex items-start gap-4">
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f7f5f0] text-[#121212]">
-                            <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                        </div>
-                        <div>
-                            <h4 class="testament-font-serif text-lg font-semibold text-[#121212]">Free Worldwide Delivery</h4>
-                            <p class="mt-1 text-xs text-[#6b665f]">On all orders over $100 worldwide.</p>
-                        </div>
+        <section style="padding: 40px 24px 80px 24px; max-width: 1400px; margin: 0 auto;">
+            <div class="tst-section-header" style="margin-bottom: 20px;">
+                <span class="tst-section-subtitle">JOIN OUR COMMUNITY</span>
+                <h2 class="tst-section-title" style="font-size: 32px;">@TESTAMENT_STYLE</h2>
+            </div>
+
+            <div class="tst-insta-grid">
+                @foreach ($instagramPhotos as $insta)
+                    <div class="tst-insta-item">
+                        <img src="{{ $insta }}" alt="Instagram Lifestyle" class="tst-insta-img" loading="lazy" />
                     </div>
-                    <!-- 2 -->
-                    <div class="flex items-start gap-4">
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f7f5f0] text-[#121212]">
-                            <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        </div>
-                        <div>
-                            <h4 class="testament-font-serif text-lg font-semibold text-[#121212]">30-Day Easy Returns</h4>
-                            <p class="mt-1 text-xs text-[#6b665f]">Hassle-free exchanges and returns.</p>
-                        </div>
-                    </div>
-                    <!-- 3 -->
-                    <div class="flex items-start gap-4">
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f7f5f0] text-[#121212]">
-                            <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </div>
-                        <div>
-                            <h4 class="testament-font-serif text-lg font-semibold text-[#121212]">Secure Checkout</h4>
-                            <p class="mt-1 text-xs text-[#6b665f]">Encrypted payments via Stripe &amp; PayPal.</p>
-                        </div>
-                    </div>
-                    <!-- 4 -->
-                    <div class="flex items-start gap-4">
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f7f5f0] text-[#121212]">
-                            <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                        </div>
-                        <div>
-                            <h4 class="testament-font-serif text-lg font-semibold text-[#121212]">24/7 Dedicated Care</h4>
-                            <p class="mt-1 text-xs text-[#6b665f]">Always here to assist with styling &amp; orders.</p>
-                        </div>
+                @endforeach
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 15. SPLIT NEWSLETTER SIGNUP (Matching Image 2 Bottom)            -->
+        <!-- ================================================================= -->
+        <section class="tst-newsletter-split">
+            <img src="https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=900&auto=format&fit=crop&q=85" alt="Newsletter Editorial" class="tst-newsletter-img" />
+            <div class="tst-newsletter-form-wrap">
+                <span class="tst-section-subtitle">JOIN THE TESTAMENT CLUB</span>
+                <h2>Receive 15% Off Your First Order</h2>
+                <p>
+                    Be the first to know about new resort capsule arrivals, private showroom sales, and editorial styling stories.
+                </p>
+                <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to Testament!');" class="tst-input-row">
+                    <input type="email" placeholder="Enter your email address" class="tst-input-email" required />
+                    <button type="submit" class="tst-input-btn">Subscribe</button>
+                </form>
+            </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- 16. LUXURY DARK FOOTER (Matching Image 2)                        -->
+        <!-- ================================================================= -->
+        <footer class="tst-footer">
+            <div class="tst-footer-grid">
+                <!-- Col 1 -->
+                <div>
+                    <h4>THE TESTAMENT</h4>
+                    <p>
+                        A tribute to relaxed elegance, mindful craftsmanship, and enduring resort silhouettes crafted for summer escapes.
+                    </p>
+                </div>
+                <!-- Col 2 -->
+                <div>
+                    <h4>SHOP</h4>
+                    <a href="{{ route('shop.search.index') }}">New Arrivals</a>
+                    <a href="{{ route('shop.search.index', ['term' => 'dress']) }}">Dresses</a>
+                    <a href="{{ route('shop.search.index', ['term' => 'playsuit']) }}">Playsuits</a>
+                    <a href="{{ route('shop.search.index', ['term' => 'linen']) }}">The Linen Capsule</a>
+                    <a href="#sale">End of Season Sale</a>
+                </div>
+                <!-- Col 3 -->
+                <div>
+                    <h4>CUSTOMER CARE</h4>
+                    <a href="#">Shipping &amp; Delivery</a>
+                    <a href="#">Returns &amp; Exchanges</a>
+                    <a href="#">Size Guide</a>
+                    <a href="#">Track Order</a>
+                    <a href="#">Contact Us</a>
+                </div>
+                <!-- Col 4 -->
+                <div>
+                    <h4>CONNECT</h4>
+                    <p>hello@testament.com</p>
+                    <p>Mon - Fri: 9:00 AM - 6:00 PM EST</p>
+                    <div style="margin-top: 14px; display: flex; gap: 16px; font-size: 14px;">
+                        <span>Instagram</span> &bull; <span>Pinterest</span> &bull; <span>TikTok</span>
                     </div>
                 </div>
             </div>
-        </section>
+
+            <div class="tst-footer-bottom">
+                <div>&copy; {{ date('Y') }} THE TESTAMENT. Powered by Bagisto E-Commerce.</div>
+                <div style="display: flex; gap: 16px;">
+                    <span>Privacy Policy</span>
+                    <span>Terms of Service</span>
+                    <span>Accessibility</span>
+                </div>
+            </div>
+        </footer>
 
     </div>
 
@@ -698,8 +1446,7 @@
     @push ('scripts')
         <script>
             (function() {
-                // Initialize Countdown Timer for 2 days into the future
-                var countdownDuration = (16 * 3600) + (43 * 60) + 54; // default hours + mins + secs
+                var countdownDuration = (16 * 3600) + (43 * 60) + 54;
                 var storageKey = 'testament_sale_end_timestamp';
                 var targetTime = localStorage.getItem(storageKey);
 
@@ -717,10 +1464,10 @@
                     var mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                     var secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-                    var elDays = document.getElementById('testament-days');
-                    var elHours = document.getElementById('testament-hours');
-                    var elMins = document.getElementById('testament-mins');
-                    var elSecs = document.getElementById('testament-secs');
+                    var elDays = document.getElementById('tst-days');
+                    var elHours = document.getElementById('tst-hours');
+                    var elMins = document.getElementById('tst-mins');
+                    var elSecs = document.getElementById('tst-secs');
 
                     if (elDays) elDays.textContent = String(days).padStart(2, '0');
                     if (elHours) elHours.textContent = String(hours).padStart(2, '0');
@@ -735,4 +1482,3 @@
     @endpush
 
 </x-shop::layouts>
-
