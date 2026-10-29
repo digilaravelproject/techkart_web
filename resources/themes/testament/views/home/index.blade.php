@@ -1,30 +1,27 @@
 @php
     $channel = core()->getCurrentChannel();
 
-    // Fetch live products for Testament Showcase
+    // Fetch live products for Testament Showcase via Bagisto repository
     $productRepo = app(\Webkul\Product\Repositories\ProductRepository::class);
     
-    // Fetch products mapped to this channel
-    $allProducts = $productRepo->scopeQuery(function ($query) {
-        return $query->where('status', 1)->where('visible_individually', 1)->orderBy('id', 'desc');
-    })->all();
+    // Fetch active products properly using Bagisto product repository
+    $allProducts = $productRepo->getAll(['limit' => 24]);
 
     // Specific product highlights
-    $willaProduct = $allProducts->firstWhere('sku', 'TESTAMENT-WILLA') 
+    $willaProduct = \Webkul\Product\Models\Product::where('sku', 'TESTAMENT-WILLA')->first() 
         ?? $allProducts->first();
 
     // Trending & Just Arrived subsets
-    $trendingProducts = $allProducts->filter(function($p) {
-        return str_starts_with($p->sku, 'TESTAMENT-') && $p->sku !== 'TESTAMENT-WILLA';
+    $testamentTagged = $allProducts->filter(function($p) {
+        return str_starts_with($p->sku ?? '', 'TESTAMENT-') && ($p->sku ?? '') !== 'TESTAMENT-WILLA';
     })->values();
 
-    if ($trendingProducts->count() < 4) {
-        $trendingProducts = $allProducts->take(4);
-    }
+    $trendingProducts = $testamentTagged->count() >= 4 ? $testamentTagged->take(4) : $allProducts->take(4);
 
     $justArrivedProducts = $allProducts->filter(function($p) {
-        return !in_array($p->sku, ['TESTAMENT-WILLA', 'TESTAMENT-SUMMER-01']);
-    })->take(4);
+        return !in_array($p->sku ?? '', ['TESTAMENT-WILLA', 'TESTAMENT-SUMMER-01']);
+    })->values()->take(4);
+
     if ($justArrivedProducts->count() < 4) {
         $justArrivedProducts = $allProducts->slice(2, 4);
     }
