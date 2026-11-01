@@ -232,10 +232,6 @@ class TestamentThemeSeeder extends Seeder
         foreach ($products as $item) {
             $existing = Product::where('sku', $item['sku'])->first();
 
-            if ($existing && $existing->attribute_values()->exists()) {
-                continue;
-            }
-
             try {
                 \Illuminate\Database\Eloquent\Model::reguard();
 
@@ -249,29 +245,31 @@ class TestamentThemeSeeder extends Seeder
                     $product = $existing;
                 }
 
-                $updateData = [
-                    'sku'                  => $item['sku'],
-                    'name'                 => $item['name'],
-                    'url_key'              => $item['url_key'] . '-' . $product->id,
-                    'new'                  => 1,
-                    'featured'             => 1,
-                    'status'               => 1,
-                    'visible_individually' => 1,
-                    'price'                => $item['price'],
-                    'special_price'        => $item['special_price'],
-                    'short_description'    => $item['short_description'],
-                    'description'          => $item['description'],
-                    'meta_title'           => $item['name'] . ' | The Testament',
-                    'meta_keywords'        => 'testament, shopify, ' . $item['name'] . ', summer fashion',
-                    'meta_description'     => $item['short_description'],
-                    'channel'              => 'default',
-                    'locale'               => 'en',
-                    'channels'             => [1],
-                    'categories'           => array_merge([$rootId], $item['categories']),
-                    'inventories'          => [1 => 100],
-                ];
+                if (! $existing || ! $existing->attribute_values()->exists()) {
+                    $updateData = [
+                        'sku'                  => $item['sku'],
+                        'name'                 => $item['name'],
+                        'url_key'              => $item['url_key'] . '-' . $product->id,
+                        'new'                  => 1,
+                        'featured'             => 1,
+                        'status'               => 1,
+                        'visible_individually' => 1,
+                        'price'                => $item['price'],
+                        'special_price'        => $item['special_price'],
+                        'short_description'    => $item['short_description'],
+                        'description'          => $item['description'],
+                        'meta_title'           => $item['name'] . ' | The Testament',
+                        'meta_keywords'        => 'testament, shopify, ' . $item['name'] . ', summer fashion',
+                        'meta_description'     => $item['short_description'],
+                        'channel'              => 'default',
+                        'locale'               => 'en',
+                        'channels'             => [1],
+                        'categories'           => array_merge([$rootId], $item['categories']),
+                        'inventories'          => [1 => 100],
+                    ];
 
-                $productRepo->update($updateData, $product->id);
+                    $productRepo->update($updateData, $product->id);
+                }
 
                 // Add product image if not present
                 $hasImage = ProductImage::where('product_id', $product->id)->exists();

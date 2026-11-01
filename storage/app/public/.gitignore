@@ -1,3 +1,6 @@
 *
 !data-transfer
+!products
+!products/testament
+!products/testament/**
 !.gitignore
