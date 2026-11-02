@@ -104,6 +104,17 @@ class ProductController extends Controller
             $configurableFamily = $this->attributeFamilyRepository
                 ->find(request()->input('attribute_family_id'));
 
+            if (! $configurableFamily || $configurableFamily->configurable_attributes->isEmpty()) {
+                return new JsonResponse([
+                    'message' => 'The selected attribute family has no configurable attributes (like Color, Size). Please select "Default" for clothing/apparel, or add configurable attributes to this family first.',
+                    'errors'  => [
+                        'attribute_family_id' => [
+                            'The selected attribute family has no configurable attributes (Color, Size). For clothing/shirts, please choose "Default".',
+                        ],
+                    ],
+                ], 422);
+            }
+
             return new JsonResponse([
                 'data' => [
                     'attributes' => AttributeResource::collection($configurableFamily->configurable_attributes),
