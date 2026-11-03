@@ -347,12 +347,12 @@ class TestamentThemeSeeder extends Seeder
             $this->command?->warn('Reindex note: '.$e->getMessage());
         }
 
-        // 7. Activate 'testament' theme on Channel 1
+        // 7. Ensure Default theme is active on Channel 1
         $channel = Channel::find(1);
         if ($channel) {
-            $channel->theme = 'testament';
+            $channel->theme = 'default';
             $channel->save();
-            $this->command?->info("Default channel theme updated to 'testament'!");
+            $this->command?->info("Default channel theme set to 'default'!");
         }
 
         // 8. Seed Bagisto Admin Appearance Sections for Testament Theme

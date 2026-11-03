@@ -32,11 +32,11 @@ class ThemeController extends Controller
     {
         $themes = $this->themeCatalog->all();
 
-        $activeTheme = $themes->firstWhere('status', ThemeCatalog::STATUS_ACTIVE)
-            ?? $themes->firstWhere('code', config('themes.shop-default', 'default'))
+        $defaultTheme = $themes->firstWhere('code', 'default')
+            ?? $themes->firstWhere('status', ThemeCatalog::STATUS_ACTIVE)
             ?? $themes->first();
 
-        $themes = $activeTheme ? collect([$activeTheme]) : collect();
+        $themes = $defaultTheme ? collect([$defaultTheme]) : collect();
 
         $channels = $this->channelRepository->all();
 
