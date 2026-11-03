@@ -305,7 +305,6 @@ return [
     /**
      * Appearance.
      */
-    /*
     [
         'key' => 'appearance',
         'name' => 'admin::app.components.layouts.sidebar.appearance',
@@ -320,7 +319,6 @@ return [
         'sort' => 1,
         'icon' => '',
     ],
-    */
 
     /**
      * Settings.

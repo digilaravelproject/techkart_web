@@ -32,6 +32,12 @@ class ThemeController extends Controller
     {
         $themes = $this->themeCatalog->all();
 
+        $activeTheme = $themes->firstWhere('status', ThemeCatalog::STATUS_ACTIVE)
+            ?? $themes->firstWhere('code', config('themes.shop-default', 'default'))
+            ?? $themes->first();
+
+        $themes = $activeTheme ? collect([$activeTheme]) : collect();
+
         $channels = $this->channelRepository->all();
 
         return view('admin::appearance.themes.index', compact('themes', 'channels'));

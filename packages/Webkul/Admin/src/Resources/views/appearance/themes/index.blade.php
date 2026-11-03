@@ -297,11 +297,7 @@
                             {
                                 key: 'installed',
                                 label: "@lang('admin::app.appearance.themes.index.my-themes')",
-                                themes: this.themes.filter(theme => theme.is_installed),
-                            }, {
-                                key: 'available',
-                                label: "@lang('admin::app.appearance.themes.index.buy-themes')",
-                                themes: this.themes.filter(theme => ! theme.is_installed),
+                                themes: this.themes.filter(theme => theme.is_installed).slice(0, 1),
                             },
                         ].filter(group => group.themes.length);
                     },
