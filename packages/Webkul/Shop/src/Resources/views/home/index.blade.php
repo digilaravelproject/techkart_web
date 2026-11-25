@@ -61,6 +61,7 @@
         .bold-collections .inline-col-image-wrapper img {
             width: 100%;
             max-width: 632px;
+            aspect-ratio: 632 / 510;
             height: auto;
             object-fit: cover;
             border-radius: 16px;

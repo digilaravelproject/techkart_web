@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
         build: {
             emptyOutDir: true,
             minify: "esbuild",
+            sourcemap: false,
             cssCodeSplit: true,
             rollupOptions: {
                 output: {

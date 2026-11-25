@@ -32,17 +32,24 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Media Files Cache-Control
-<FilesMatch ".(jpg|jpeg|gif|png|svg|swf|webp)$">
+# Media & Font Files Cache-Control (1 year immutable)
+<FilesMatch "\.(jpg|jpeg|gif|png|svg|swf|webp|ico|woff|woff2|ttf|otf|eot)$">
     <IfModule mod_headers.c>
-        Header set Cache-Control "max-age=604800, public"
+        Header set Cache-Control "max-age=31536000, public, immutable"
+    </IfModule>
+</FilesMatch>
+
+# Hashed CSS & JS Assets Cache-Control (1 year immutable)
+<FilesMatch "\.(css|js)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "max-age=31536000, public, immutable"
     </IfModule>
 </FilesMatch>
 
 # Text Files Cache-Control
-<FilesMatch ".(xml|txt|css|js)$">
+<FilesMatch "\.(xml|txt)$">
     <IfModule mod_headers.c>
-        Header set Cache-Control "max-age=604800, proxy-revalidate"
+        Header set Cache-Control "max-age=604800, public"
     </IfModule>
 </FilesMatch>
 
