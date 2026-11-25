@@ -68,21 +68,21 @@
 @pushOnce('styles')
     <style>
         .hero-slider-wrapper {
-            max-width: 1440px;
-            margin: 12px auto 0;
-            padding: 0 24px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
         }
         .hero-slider-frame {
             position: relative;
-            border-radius: 18px;
+            width: 100%;
             overflow: hidden;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.10);
             background-color: #0f172a;
         }
         .hero-slider-img {
             width: 100%;
-            aspect-ratio: 2.65 / 1;
-            max-height: 520px;
+            aspect-ratio: 2.743 / 1;
+            max-height: 540px;
             object-fit: cover;
             object-position: center;
             display: block;
@@ -144,22 +144,7 @@
             width: 22px;
             background: #ffffff;
         }
-        @media (max-width: 1024px) {
-            .hero-slider-wrapper {
-                padding: 0 16px;
-            }
-            .hero-slider-frame {
-                border-radius: 14px;
-            }
-        }
         @media (max-width: 640px) {
-            .hero-slider-wrapper {
-                padding: 0 10px;
-                margin-top: 8px;
-            }
-            .hero-slider-frame {
-                border-radius: 12px;
-            }
             .hero-slider-img {
                 aspect-ratio: 2.2 / 1;
             }
