@@ -28,6 +28,57 @@
     @endif
 @endpush
 
+@push('styles')
+    <style>
+        .home-static-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin: 48px auto;
+            padding: 0 60px;
+            align-items: stretch;
+        }
+        .home-static-gallery img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 16px;
+            background-color: #f5f5f5;
+            border: 1px solid #e5e7eb;
+            transition: transform 300ms ease, box-shadow 300ms ease;
+        }
+        .home-static-gallery img:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+        .bold-collections .inline-col-image-wrapper img {
+            width: 100%;
+            max-width: 632px;
+            height: auto;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+        @media (max-width: 1024px) {
+            .home-static-gallery {
+                padding: 0 30px;
+                gap: 16px;
+            }
+        }
+        @media (max-width: 640px) {
+            .home-static-gallery {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 0 15px;
+                gap: 12px;
+                margin: 28px auto;
+            }
+            .home-static-gallery img {
+                height: 180px;
+                border-radius: 12px;
+            }
+        }
+    </style>
+@endpush
+
 <x-shop::layouts>
     <!-- Page Title -->
     <x-slot:title>
@@ -70,7 +121,20 @@
 
                 <!-- Render HTML -->
                 @if (! empty($data['html']))
-                    {!! $data['html'] !!}
+                    @php
+                        $isRawImageBlock = empty($data['css'])
+                            && str_contains($data['html'], '<img')
+                            && ! str_contains($data['html'], 'container')
+                            && ! str_contains($data['html'], 'inline-col-wrapper');
+                    @endphp
+
+                    @if ($isRawImageBlock)
+                        <div class="home-static-gallery container">
+                            {!! $data['html'] !!}
+                        </div>
+                    @else
+                        {!! $data['html'] !!}
+                    @endif
                 @endif
 
                 @break
