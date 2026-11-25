@@ -37,12 +37,16 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $channel = core()->getCurrentChannel();
+
+        $themeCode = themes()->current()?->code ?? $channel->theme;
+
         $sections = $this->sectionRepository->getRenderable(
-            core()->getCurrentChannel()->id,
-            core()->getCurrentChannel()->theme
+            $channel->id,
+            $themeCode
         );
 
-        $categories = $this->categoryRepository->getVisibleCategoryTree(core()->getCurrentChannel()->root_category_id);
+        $categories = $this->categoryRepository->getVisibleCategoryTree($channel->root_category_id);
 
         $categories = CategoryTreeResource::collection($categories);
 
