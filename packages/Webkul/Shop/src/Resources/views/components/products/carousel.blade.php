@@ -182,7 +182,7 @@
                 <x-shop::products.card
                     class="ecom-carousel-card-slot"
                     v-for="product in products"
-                    :key="product.id"
+                    ::key="product.id"
                 />
             </div>
         </div>
