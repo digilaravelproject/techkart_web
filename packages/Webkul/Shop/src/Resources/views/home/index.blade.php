@@ -144,6 +144,7 @@
                     :title="$data['title'] ?? ''"
                     :src="route('shop.api.categories.index', $data['filters'] ?? [])"
                     :navigation-link="route('shop.home.index')"
+                    :initial-data="$preloadedSections[$section->id] ?? null"
                     aria-label="{{ trans('shop::app.home.index.categories-carousel') }}"
                 />
 
@@ -154,6 +155,7 @@
                     :title="$data['title'] ?? ''"
                     :src="route('shop.api.products.index', $data['filters'] ?? [])"
                     :navigation-link="route('shop.search.index', $data['filters'] ?? [])"
+                    :initial-data="$preloadedSections[$section->id] ?? null"
                     aria-label="{{ trans('shop::app.home.index.product-carousel') }}"
                 />
 

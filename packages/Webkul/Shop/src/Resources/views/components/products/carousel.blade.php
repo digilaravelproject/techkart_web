@@ -1,7 +1,15 @@
+@props([
+    'src',
+    'title' => '',
+    'navigationLink' => '',
+    'initialData' => null,
+])
+
 <v-products-carousel
     src="{{ $src }}"
     title="{{ $title }}"
-    navigation-link="{{ $navigationLink ?? '' }}"
+    navigation-link="{{ $navigationLink }}"
+    :initial-data='@json($initialData)'
 >
     <x-shop::shimmer.products.carousel :navigation-link="$navigationLink ?? false" />
 </v-products-carousel>
@@ -91,13 +99,14 @@
                 'src',
                 'title',
                 'navigationLink',
+                'initialData',
             ],
 
             data() {
                 return {
-                    isLoading: true,
+                    isLoading: ! Array.isArray(this.initialData),
 
-                    products: [],
+                    products: Array.isArray(this.initialData) ? this.initialData : [],
 
                     offset: 323,
 
@@ -106,7 +115,9 @@
             },
 
             mounted() {
-                this.getProducts();
+                if (! Array.isArray(this.initialData)) {
+                    this.getProducts();
+                }
             },
 
             created() {

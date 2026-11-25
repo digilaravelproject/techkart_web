@@ -7,9 +7,14 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Webkul\Category\Repositories\CategoryRepository;
 use Webkul\Core\Http\Middleware\SecureHeaders;
+use Webkul\Product\Repositories\ProductRepository;
+use Webkul\Shop\Helpers\CatalogApiCache;
 use Webkul\Shop\Http\Requests\ContactRequest;
+use Webkul\Shop\Http\Resources\CategoryResource;
 use Webkul\Shop\Http\Resources\CategoryTreeResource;
+use Webkul\Shop\Http\Resources\ProductCardResource;
 use Webkul\Shop\Mail\ContactUs;
+use Webkul\Theme\Enums\SectionTypeEnum;
 use Webkul\Theme\Repositories\SectionRepository;
 use Webkul\Theme\ThemeCatalog;
 
@@ -27,7 +32,9 @@ class HomeController extends Controller
      */
     public function __construct(
         protected SectionRepository $sectionRepository,
-        protected CategoryRepository $categoryRepository
+        protected CategoryRepository $categoryRepository,
+        protected ProductRepository $productRepository,
+        protected CatalogApiCache $catalogApiCache
     ) {}
 
     /**
@@ -50,7 +57,53 @@ class HomeController extends Controller
 
         $categories = CategoryTreeResource::collection($categories);
 
-        return view('shop::home.index', compact('sections', 'categories'));
+        $preloadedSections = $this->preloadCarouselData($sections, $channel->id);
+
+        return view('shop::home.index', compact('sections', 'categories', 'preloadedSections'));
+    }
+
+    /**
+     * Preload cached carousel data server-side so the storefront avoids concurrent API burst requests.
+     */
+    protected function preloadCarouselData($sections, int $channelId): array
+    {
+        $preloaded = [];
+
+        foreach ($sections as $section) {
+            $filters = (array) ($section->options['filters'] ?? []);
+
+            if ($section->type === SectionTypeEnum::CATEGORY_CAROUSEL->value) {
+                $params = array_merge([
+                    'status' => 1,
+                    'locale' => app()->getLocale(),
+                ], $filters);
+
+                $cached = $this->catalogApiCache->remember('categories', $params, function () use ($params) {
+                    return CategoryResource::collection($this->categoryRepository->getAll($params))
+                        ->response()
+                        ->getData(true);
+                });
+
+                $preloaded[$section->id] = $cached['data'] ?? [];
+            } elseif ($section->type === SectionTypeEnum::PRODUCT_CAROUSEL->value) {
+                $cached = $this->catalogApiCache->remember('products', $filters, function () use ($filters, $channelId) {
+                    $params = array_merge($filters, [
+                        'query' => '',
+                        'channel_id' => $channelId,
+                        'status' => 1,
+                        'visible_individually' => 1,
+                    ]);
+
+                    return ProductCardResource::collection($this->productRepository->getAll($params))
+                        ->response()
+                        ->getData(true);
+                });
+
+                $preloaded[$section->id] = $cached['data'] ?? [];
+            }
+        }
+
+        return $preloaded;
     }
 
     /**

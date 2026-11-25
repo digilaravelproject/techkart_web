@@ -1,7 +1,15 @@
+@props([
+    'src',
+    'title' => '',
+    'navigationLink' => '',
+    'initialData' => null,
+])
+
 <v-categories-carousel
     src="{{ $src }}"
     title="{{ $title }}"
-    navigation-link="{{ $navigationLink ?? '' }}"
+    navigation-link="{{ $navigationLink }}"
+    :initial-data='@json($initialData)'
 >
     <x-shop::shimmer.categories.carousel
         :count="8"
@@ -229,13 +237,14 @@
                 'src',
                 'title',
                 'navigationLink',
+                'initialData',
             ],
 
             data() {
                 return {
-                    isLoading: true,
+                    isLoading: ! Array.isArray(this.initialData),
 
-                    categories: [],
+                    categories: Array.isArray(this.initialData) ? this.initialData : [],
 
                     offset: 323,
 
@@ -250,7 +259,13 @@
             },
 
             mounted() {
-                this.getCategories();
+                if (Array.isArray(this.initialData)) {
+                    this.$nextTick(() => {
+                        this.updateScrollState();
+                    });
+                } else {
+                    this.getCategories();
+                }
 
                 window.addEventListener('resize', this.updateScrollState);
             },
