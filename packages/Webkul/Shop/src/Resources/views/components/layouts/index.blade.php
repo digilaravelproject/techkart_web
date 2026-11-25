@@ -97,6 +97,10 @@
 
         {!! view_render_event('bagisto.shop.layout.head.after') !!}
 
+        @if (config('services.boosthis.enabled'))
+            <script defer src="https://www.boosthis.com/kit.js" data-key="bksend_d151efa5aaced01bba6100381fa94acee05ca60f662419e1a4a27228e68f7c7c" data-install="180aa180-215c-4029-84cd-6d34abf97e78" data-project="benzoo" onerror="console.error('[boosthis] Boosthis did not load: '+this.src+' never arrived, so nothing is measuring. Check the address, the network, and any Content-Security-Policy.')"></script>
+        @endif
+
     </head>
 
     <body>

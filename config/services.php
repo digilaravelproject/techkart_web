@@ -78,4 +78,8 @@ return [
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
         'redirect' => env('GITHUB_CALLBACK_URL'),
     ],
+
+    'boosthis' => [
+        'enabled' => env('BOOSTHIS_ENABLED', true),
+    ],
 ];
