@@ -31,10 +31,12 @@
         .ecom-card-media img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            object-position: top center;
+            object-fit: contain;
+            object-position: center;
             transition: transform 0.35s ease;
             display: block;
+            padding: 8px;
+            background: #f8fafc;
         }
         .ecom-product-card:hover .ecom-card-media img {
             transform: scale(1.04);
