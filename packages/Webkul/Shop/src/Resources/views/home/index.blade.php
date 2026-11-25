@@ -121,14 +121,12 @@
 
                 <!-- Render HTML -->
                 @if (! empty($data['html']))
-                    @php
-                        $isRawImageBlock = empty($data['css'])
-                            && str_contains($data['html'], '<img')
-                            && ! str_contains($data['html'], 'container')
-                            && ! str_contains($data['html'], 'inline-col-wrapper');
-                    @endphp
-
-                    @if ($isRawImageBlock)
+                    @if (
+                        empty($data['css'])
+                        && str_contains($data['html'], '<img')
+                        && ! str_contains($data['html'], 'container')
+                        && ! str_contains($data['html'], 'inline-col-wrapper')
+                    )
                         <div class="home-static-gallery container">
                             {!! $data['html'] !!}
                         </div>
