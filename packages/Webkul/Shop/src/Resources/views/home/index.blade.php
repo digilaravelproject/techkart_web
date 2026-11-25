@@ -58,6 +58,19 @@
             object-fit: cover;
             border-radius: 16px;
         }
+        #main > img,
+        #main > p > img {
+            width: calc(100% - 30px);
+            max-width: 1180px;
+            max-height: 360px;
+            object-fit: contain;
+            margin: 24px auto;
+            display: block;
+            border-radius: 16px;
+            background-color: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 16px;
+        }
         @media (max-width: 1024px) {
             .home-static-gallery {
                 padding: 0 30px;
@@ -121,18 +134,7 @@
 
                 <!-- Render HTML -->
                 @if (! empty($data['html']))
-                    @if (
-                        empty($data['css'])
-                        && str_contains($data['html'], '<img')
-                        && ! str_contains($data['html'], 'container')
-                        && ! str_contains($data['html'], 'inline-col-wrapper')
-                    )
-                        <div class="home-static-gallery container">
-                            {!! $data['html'] !!}
-                        </div>
-                    @else
-                        {!! $data['html'] !!}
-                    @endif
+                    {!! preg_replace('/^(\s*<img\b[^>]*\/?>\s*)+/i', '<div class="home-static-gallery container">$0</div>', $data['html']) !!}
                 @endif
 
                 @break
