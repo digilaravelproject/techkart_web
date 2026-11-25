@@ -30,6 +30,11 @@
 
 @push('styles')
     <style>
+        html,
+        body {
+            overflow-x: clip;
+            max-width: 100%;
+        }
         .home-static-gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
