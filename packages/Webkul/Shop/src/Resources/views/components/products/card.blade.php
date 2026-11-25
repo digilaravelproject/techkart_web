@@ -4,6 +4,177 @@
 >
 </v-product-card>
 
+@pushOnce('styles')
+    <style>
+        .ecom-product-card {
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            height: 100%;
+        }
+        .ecom-product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+            border-color: #cbd5e1;
+        }
+        .ecom-card-media {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 4.4;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+        .ecom-card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            transition: transform 0.35s ease;
+            display: block;
+        }
+        .ecom-product-card:hover .ecom-card-media img {
+            transform: scale(1.04);
+        }
+        .ecom-card-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #ffffff;
+            z-index: 2;
+        }
+        .ecom-card-badge.is-sale {
+            background: #dc2626;
+        }
+        .ecom-card-badge.is-new {
+            background: #0f172a;
+        }
+        .ecom-card-quick-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 2;
+        }
+        .ecom-card-icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #334155;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+        .ecom-card-icon-btn:hover {
+            background: #0f172a;
+            color: #ffffff;
+            border-color: #0f172a;
+        }
+        .ecom-card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            padding: 14px;
+            gap: 8px;
+        }
+        .ecom-card-title {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.4;
+            color: #0f172a;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 39px;
+            margin: 0;
+            text-decoration: none;
+        }
+        .ecom-card-price {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .ecom-card-price .price-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #64748b;
+        }
+        .ecom-card-price .regular-price {
+            font-size: 12.5px;
+            font-weight: 400;
+            color: #94a3b8;
+        }
+        .ecom-card-price .final-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .ecom-card-cta {
+            margin-top: auto;
+            padding-top: 6px;
+        }
+        .ecom-card-cart-btn {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 9px;
+            border: 1px solid #0f172a;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ecom-card-cart-btn:hover:not(:disabled) {
+            background: #0f172a;
+            color: #ffffff;
+        }
+        .ecom-card-cart-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        @media (max-width: 640px) {
+            .ecom-card-body {
+                padding: 10px;
+                gap: 6px;
+            }
+            .ecom-card-title {
+                font-size: 12.5px;
+                min-height: 35px;
+            }
+            .ecom-card-price .final-price {
+                font-size: 14px;
+            }
+            .ecom-card-cart-btn {
+                padding: 7px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+@endPushOnce
+
 @pushOnce('scripts')
     <script
         type="text/x-template"
@@ -11,19 +182,20 @@
     >
         <!-- Grid Card -->
         <div
-            class="1180:transtion-all group w-full rounded-md 1180:relative 1180:grid 1180:content-start 1180:overflow-hidden 1180:duration-300 1180:hover:shadow-[0_5px_10px_rgba(0,0,0,0.1)]"
+            class="ecom-product-card group"
             v-if="mode != 'list'"
         >
-            <div class="relative max-h-[300px] max-w-[291px] overflow-hidden max-md:max-h-60 max-md:max-w-full max-md:rounded-lg max-sm:max-h-[200px] max-sm:max-w-full">
+            <div class="ecom-card-media">
                 {!! view_render_event('bagisto.shop.components.products.card.image.before') !!}
 
                 <!-- Product Image -->
                 <a
                     :href="'{{ route('shop.product_or_category.index', ':slug') }}'.replace(':slug', product.url_key)"
                     :aria-label="product.name"
+                    class="block h-full w-full"
                 >
                     <x-shop::media.images.lazy
-                        class="after:content-[' '] relative bg-zinc-100 transition-all duration-300 after:block after:pb-[calc(100%+9px)] group-hover:scale-105"
+                        class="h-full w-full bg-zinc-100 object-cover"
                         ::src="product.base_image.medium_image_url"
                         ::srcset="`
                             ${product.base_image.small_image_url} 150w,
@@ -33,7 +205,7 @@
                         ::key="product.id"
                         ::index="product.id"
                         width="291"
-                        height="300"
+                        height="320"
                         ::alt="product.base_image.alt"
                     />
                 </a>
@@ -45,7 +217,7 @@
 
                 @if (core()->getConfigData('catalog.products.review.summary') == 'star_counts')
                     <x-shop::products.ratings
-                        class="absolute bottom-1.5 items-center !border-white bg-white/80 !px-2 !py-1 text-xs max-sm:!px-1.5 max-sm:!py-0.5 ltr:left-1.5 rtl:right-1.5"
+                        class="absolute bottom-2 items-center !border-white bg-white/90 !px-2 !py-0.5 text-xs shadow-sm ltr:left-2 rtl:right-2"
                         ::average="product.ratings.average"
                         ::total="product.ratings.total"
                         ::rating="false"
@@ -53,7 +225,7 @@
                     />
                 @else
                     <x-shop::products.ratings
-                        class="absolute bottom-1.5 items-center !border-white bg-white/80 !px-2 !py-1 text-xs max-sm:!px-1.5 max-sm:!py-0.5 ltr:left-1.5 rtl:right-1.5"
+                        class="absolute bottom-2 items-center !border-white bg-white/90 !px-2 !py-0.5 text-xs shadow-sm ltr:left-2 rtl:right-2"
                         ::average="product.ratings.average"
                         ::total="product.reviews.total"
                         ::rating="false"
@@ -63,107 +235,32 @@
 
                 {!! view_render_event('bagisto.shop.components.products.card.average_ratings.after') !!}
 
-                <div class="action-items bg-black">
-                    <!-- Product Sale Badge -->
-                    <p
-                        class="absolute top-1.5 inline-block rounded-[44px] bg-red-600 px-2.5 text-sm text-white max-sm:rounded-l-none max-sm:rounded-r-xl max-sm:px-2 max-sm:py-0.5 max-sm:text-xs ltr:left-1.5 max-sm:ltr:left-0 rtl:right-5 max-sm:rtl:right-0"
-                        v-if="product.on_sale"
-                    >
-                        @lang('shop::app.components.products.card.sale')
-                    </p>
-
-                    <!-- Product New Badge -->
-                    <p
-                        class="absolute top-1.5 inline-block rounded-[44px] bg-navyBlue px-2.5 text-sm text-white max-sm:rounded-l-none max-sm:rounded-r-xl max-sm:px-2 max-sm:py-0.5 max-sm:text-xs ltr:left-1.5 max-sm:ltr:left-0 rtl:right-1.5 max-sm:rtl:right-0"
-                        v-else-if="product.is_new"
-                    >
-                        @lang('shop::app.components.products.card.new')
-                    </p>
-
-                    <div class="opacity-0 transition-all duration-300 group-hover:bottom-0 group-hover:opacity-100 max-lg:opacity-100 max-sm:opacity-100">
-
-                        {!! view_render_event('bagisto.shop.components.products.card.wishlist_option.before') !!}
-
-                        @if (core()->getConfigData('customer.settings.wishlist.wishlist_option'))
-                            <span
-                                class="absolute top-2.5 flex h-6 w-6 items-center justify-center rounded-full border border-zinc-200 bg-white text-lg md:hidden ltr:right-1.5 rtl:left-1.5"
-                                role="button"
-                                aria-label="@lang('shop::app.components.products.card.add-to-wishlist')"
-                                tabindex="0"
-                                :class="product.is_wishlist ? 'icon-heart-fill text-red-500' : 'icon-heart'"
-                                @click="addToWishlist()"
-                            >
-                            </span>
-                        @endif
-
-                        {!! view_render_event('bagisto.shop.components.products.card.wishlist_option.after') !!}
-
-                        {!! view_render_event('bagisto.shop.components.products.card.compare_option.before') !!}
-
-                        @if (core()->getConfigData('catalog.products.settings.compare_option'))
-                            <span
-                                class="icon-compare absolute top-10 flex h-6 w-6 items-center justify-center rounded-full border border-zinc-200 bg-white text-lg sm:hidden ltr:right-1.5 rtl:left-1.5"
-                                role="button"
-                                aria-label="@lang('shop::app.components.products.card.add-to-compare')"
-                                tabindex="0"
-                                @click="addToCompare(product.id)"
-                            >
-                            </span>
-                        @endif
-
-                        {!! view_render_event('bagisto.shop.components.products.card.compare_option.after') !!}
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product Information Section -->
-            <div class="-mt-9 grid max-w-[291px] translate-y-9 content-start gap-2.5 bg-white p-2.5 transition-transform duration-300 ease-out group-hover:-translate-y-0 group-hover:rounded-t-lg max-md:relative max-md:mt-0 max-md:translate-y-0 max-md:gap-0 max-md:px-0 max-md:py-1.5 max-sm:min-w-[170px] max-sm:max-w-[192px]">
-
-                {!! view_render_event('bagisto.shop.components.products.card.name.before') !!}
-
-                <p class="break-words text-base font-medium max-md:mb-1.5 max-md:max-w-56 max-md:whitespace-break-spaces max-md:leading-6 max-sm:max-w-[192px] max-sm:text-sm max-sm:leading-4">
-                    @{{ product.name }}
-                </p>
-
-                {!! view_render_event('bagisto.shop.components.products.card.name.after') !!}
-
-                <!-- Pricing -->
-                {!! view_render_event('bagisto.shop.components.products.card.price.before') !!}
-
-                <div
-                    class="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-lg font-semibold max-sm:text-sm max-sm:leading-6"
-                    v-html="product.price_html"
+                <!-- Product Sale / New Badge -->
+                <span
+                    class="ecom-card-badge is-sale"
+                    v-if="product.on_sale"
                 >
-                </div>
+                    @lang('shop::app.components.products.card.sale')
+                </span>
 
-                {!! view_render_event('bagisto.shop.components.products.card.price.after') !!}
+                <span
+                    class="ecom-card-badge is-new"
+                    v-else-if="product.is_new"
+                >
+                    @lang('shop::app.components.products.card.new')
+                </span>
 
-                <!-- Product Actions Section -->
-                <div class="action-items flex items-center justify-between opacity-0 transition-all duration-300 ease-in-out group-hover:opacity-100 max-md:hidden">
-                    @if (core()->getConfigData('sales.checkout.shopping_cart.cart_page'))
-                        {!! view_render_event('bagisto.shop.components.products.card.add_to_cart.before') !!}
-
-                        <button
-                            class="secondary-button w-full max-w-full p-2.5 text-sm font-medium max-sm:rounded-xl max-sm:p-2"
-                            :disabled="! product.is_saleable || isAddingToCart"
-                            @click="addToCart()"
-                        >
-                            @lang('shop::app.components.products.card.add-to-cart')
-                        </button>
-
-                        {!! view_render_event('bagisto.shop.components.products.card.add_to_cart.after') !!}
-                    @endif
-
+                <!-- Floating Wishlist & Compare -->
+                <div class="ecom-card-quick-actions">
                     {!! view_render_event('bagisto.shop.components.products.card.wishlist_option.before') !!}
 
                     @if (core()->getConfigData('customer.settings.wishlist.wishlist_option'))
                         <span
-                            class="cursor-pointer p-2.5 text-2xl max-sm:hidden"
+                            class="ecom-card-icon-btn"
                             role="button"
                             aria-label="@lang('shop::app.components.products.card.add-to-wishlist')"
                             tabindex="0"
-                            :class="product.is_wishlist ? 'icon-heart-fill text-red-600' : 'icon-heart'"
+                            :class="product.is_wishlist ? 'icon-heart-fill text-red-500' : 'icon-heart'"
                             @click="addToWishlist()"
                         >
                         </span>
@@ -175,7 +272,7 @@
 
                     @if (core()->getConfigData('catalog.products.settings.compare_option'))
                         <span
-                            class="icon-compare cursor-pointer p-2.5 text-2xl max-sm:hidden"
+                            class="icon-compare ecom-card-icon-btn"
                             role="button"
                             aria-label="@lang('shop::app.components.products.card.add-to-compare')"
                             tabindex="0"
@@ -185,6 +282,48 @@
                     @endif
 
                     {!! view_render_event('bagisto.shop.components.products.card.compare_option.after') !!}
+                </div>
+            </div>
+
+            <!-- Product Information Section -->
+            <div class="ecom-card-body">
+                {!! view_render_event('bagisto.shop.components.products.card.name.before') !!}
+
+                <a
+                    :href="'{{ route('shop.product_or_category.index', ':slug') }}'.replace(':slug', product.url_key)"
+                    class="ecom-card-title"
+                >
+                    @{{ product.name }}
+                </a>
+
+                {!! view_render_event('bagisto.shop.components.products.card.name.after') !!}
+
+                <!-- Pricing -->
+                {!! view_render_event('bagisto.shop.components.products.card.price.before') !!}
+
+                <div
+                    class="ecom-card-price"
+                    v-html="product.price_html"
+                >
+                </div>
+
+                {!! view_render_event('bagisto.shop.components.products.card.price.after') !!}
+
+                <!-- Product Actions Section -->
+                <div class="ecom-card-cta">
+                    @if (core()->getConfigData('sales.checkout.shopping_cart.cart_page'))
+                        {!! view_render_event('bagisto.shop.components.products.card.add_to_cart.before') !!}
+
+                        <button
+                            class="ecom-card-cart-btn"
+                            :disabled="! product.is_saleable || isAddingToCart"
+                            @click="addToCart()"
+                        >
+                            @lang('shop::app.components.products.card.add-to-cart')
+                        </button>
+
+                        {!! view_render_event('bagisto.shop.components.products.card.add_to_cart.after') !!}
+                    @endif
                 </div>
             </div>
         </div>
