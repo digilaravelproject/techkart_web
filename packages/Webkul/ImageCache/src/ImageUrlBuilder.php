@@ -23,14 +23,16 @@ class ImageUrlBuilder
      */
     public function urls(string $path, ?string $key = null): array
     {
-        $isDriverLocal = $this->isDriverLocal();
+        $directUrl = Storage::url($path);
 
         $urls = [];
 
         foreach ($this->templateNames($key) as $template) {
-            $urls[$template.'_image_url'] = $isDriverLocal
+            $cachedFile = public_path('cache/'.$template.'/'.$path);
+
+            $urls[$template.'_image_url'] = is_file($cachedFile)
                 ? url('cache/'.$template.'/'.$path)
-                : Storage::url($path);
+                : $directUrl;
         }
 
         return $urls;
