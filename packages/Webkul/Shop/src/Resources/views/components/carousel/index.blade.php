@@ -41,111 +41,225 @@
 @endif
 
 <v-carousel :images="{{ json_encode($carouselImages) }}">
-    <div class="overflow-hidden">
-        @if ($firstImage)
-            {{--
-                Server-rendered first slide so the browser can discover and
-                fetch the LCP image immediately, before Vue mounts the
-                carousel. `sizes="100vw"` declares the actual rendered width
-                (the img has `w-screen`) so the browser picks the smallest
-                srcset variant that satisfies viewport_px × DPR — mobile
-                412 × 1.75 ≈ 721 → 768w small variant. The inline `style`
-                supplies width/aspect-ratio so the LCP element can paint
-                before the Tailwind CSS bundle finishes parsing on slow
-                mobile CPU.
-            --}}
-            <img
-                src="{{ $firstImage['src'] }}"
-                srcset="{{ $firstImage['srcset'] }}"
-                sizes="100vw"
-                class="aspect-[2.743/1] max-h-screen w-screen select-none object-cover"
-                style="width:100vw;aspect-ratio:2.743/1;max-height:100vh;object-fit:cover;display:block"
-                alt="{{ $firstImage['title'] ?? trans('shop::app.home.index.image-carousel') }}"
-                fetchpriority="high"
-                decoding="sync"
-            >
-        @else
-            <div class="shimmer aspect-[2.743/1] max-h-screen w-screen"></div>
-        @endif
+    <div class="hero-slider-wrapper">
+        <div class="hero-slider-frame overflow-hidden">
+            @if ($firstImage)
+                {{--
+                    Server-rendered first slide so the browser can discover and
+                    fetch the LCP image immediately, before Vue mounts the
+                    carousel.
+                --}}
+                <img
+                    src="{{ $firstImage['src'] }}"
+                    srcset="{{ $firstImage['srcset'] }}"
+                    sizes="100vw"
+                    class="hero-slider-img select-none"
+                    alt="{{ $firstImage['title'] ?? trans('shop::app.home.index.image-carousel') }}"
+                    fetchpriority="high"
+                    decoding="sync"
+                >
+            @else
+                <div class="shimmer hero-slider-img"></div>
+            @endif
+        </div>
     </div>
 </v-carousel>
+
+@pushOnce('styles')
+    <style>
+        .hero-slider-wrapper {
+            max-width: 1440px;
+            margin: 12px auto 0;
+            padding: 0 24px;
+        }
+        .hero-slider-frame {
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.10);
+            background-color: #0f172a;
+        }
+        .hero-slider-img {
+            width: 100%;
+            aspect-ratio: 2.65 / 1;
+            max-height: 520px;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+        .hero-slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #0f172a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+            opacity: 0.85;
+            z-index: 10;
+        }
+        .hero-slider-arrow:hover {
+            background: #ffffff;
+            transform: translateY(-50%) scale(1.06);
+            opacity: 1;
+        }
+        .hero-slider-dots {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+        .hero-slider-dot {
+            height: 7px;
+            width: 7px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 0;
+            padding: 0;
+        }
+        .hero-slider-dot:hover {
+            background: rgba(255, 255, 255, 0.85);
+        }
+        .hero-slider-dot.is-active {
+            width: 22px;
+            background: #ffffff;
+        }
+        @media (max-width: 1024px) {
+            .hero-slider-wrapper {
+                padding: 0 16px;
+            }
+            .hero-slider-frame {
+                border-radius: 14px;
+            }
+        }
+        @media (max-width: 640px) {
+            .hero-slider-wrapper {
+                padding: 0 10px;
+                margin-top: 8px;
+            }
+            .hero-slider-frame {
+                border-radius: 12px;
+            }
+            .hero-slider-img {
+                aspect-ratio: 2.2 / 1;
+            }
+            .hero-slider-arrow {
+                display: none;
+            }
+            .hero-slider-dots {
+                bottom: 8px;
+                padding: 4px 9px;
+                gap: 5px;
+            }
+            .hero-slider-dot {
+                height: 5px;
+                width: 5px;
+            }
+            .hero-slider-dot.is-active {
+                width: 16px;
+            }
+        }
+    </style>
+@endPushOnce
 
 @pushOnce('scripts')
     <script
         type="text/x-template"
         id="v-carousel-template"
     >
-        <div class="relative m-auto flex w-full overflow-hidden">
-            <!-- Slider -->
-            <div
-                class="inline-flex translate-x-0 cursor-pointer transition-transform duration-700 ease-out will-change-transform"
-                ref="sliderContainer"
-            >
+        <div class="hero-slider-wrapper">
+            <div class="hero-slider-frame group">
+                <!-- Slider -->
                 <div
-                    class="max-h-screen w-screen bg-cover bg-no-repeat"
-                    v-for="(image, index) in images"
-                    :key="index"
-                    @click="visitLink(image)"
-                    ref="slide"
+                    class="inline-flex w-full translate-x-0 cursor-pointer transition-transform duration-700 ease-out will-change-transform"
+                    ref="sliderContainer"
                 >
-                    <x-shop::media.images.lazy
-                        class="aspect-[2.743/1] max-h-full w-full max-w-full select-none transition-transform duration-300 ease-in-out will-change-transform"
-                        ::lazy="index === 0 ? false : true"
-                        ::src="image.src"
-                        ::srcset="image.srcset"
-                        sizes="100vw"
-                        ::alt="image?.title || 'Carousel Image ' + (index + 1)"
-                        tabindex="0"
-                        ::fetchpriority="index === 0 ? 'high' : 'low'"
-                        ::decoding="index === 0 ? 'sync' : 'async'"
-                    />
+                    <div
+                        class="w-full flex-shrink-0 bg-cover bg-no-repeat"
+                        v-for="(image, index) in images"
+                        :key="index"
+                        @click="visitLink(image)"
+                        ref="slide"
+                    >
+                        <x-shop::media.images.lazy
+                            class="hero-slider-img select-none"
+                            ::lazy="index === 0 ? false : true"
+                            ::src="image.src"
+                            ::srcset="image.srcset"
+                            sizes="(max-width: 1440px) 100vw, 1440px"
+                            ::alt="image?.title || 'Carousel Image ' + (index + 1)"
+                            tabindex="0"
+                            ::fetchpriority="index === 0 ? 'high' : 'low'"
+                            ::decoding="index === 0 ? 'sync' : 'async'"
+                        />
+                    </div>
                 </div>
-            </div>
 
-            <!-- Navigation -->
-            <span
-                class="icon-arrow-left absolute left-2.5 top-1/2 -mt-[22px] hidden w-auto rounded-full bg-black/80 p-3 text-2xl font-bold text-white opacity-30 transition-all md:inline-block"
-                :class="{
-                    'cursor-not-allowed': direction == 'ltr' && currentIndex == 0,
-                    'cursor-pointer hover:opacity-100': direction == 'ltr' ? currentIndex > 0 : currentIndex <= 0
-                }"
-                role="button"
-                aria-label="@lang('shop::components.carousel.previous')"
-                tabindex="0"
-                v-if="images?.length >= 2"
-                @click="navigate('prev')"
-            >
-            </span>
-
-            <span
-                class="icon-arrow-right absolute right-2.5 top-1/2 -mt-[22px] hidden w-auto rounded-full bg-black/80 p-3 text-2xl font-bold text-white opacity-30 transition-all md:inline-block"
-                :class="{
-                    'cursor-not-allowed': direction == 'rtl' && currentIndex == 0,
-                    'cursor-pointer hover:opacity-100': direction == 'rtl' ? currentIndex < 0 : currentIndex >= 0
-                }"
-                role="button"
-                aria-label="@lang('shop::components.carousel.next')"
-                tabindex="0"
-                v-if="images?.length >= 2"
-                @click="navigate('next')"
-            >
-            </span>
-
-            <!-- Pagination -->
-            <div class="absolute bottom-5 left-0 flex w-full justify-center max-md:bottom-3.5 max-sm:bottom-2.5">
-                <div
-                    v-for="(image, index) in images"
-                    :key="index"
-                    class="sm:p-2.5 mx-1 h-3 w-3 cursor-pointer rounded-full max-md:h-2 max-md:w-2 max-sm:h-1.5 max-sm:w-1.5
-                    p-2 focus:outline-none"
-                    :class="{ 'bg-navyBlue': index === Math.abs(currentIndex), 'opacity-30 bg-gray-500': index !== Math.abs(currentIndex) }"
+                <!-- Navigation -->
+                <span
+                    class="icon-arrow-left hero-slider-arrow left-3.5"
+                    :class="{
+                        'cursor-not-allowed opacity-40': direction == 'ltr' && currentIndex == 0,
+                        'cursor-pointer': direction == 'ltr' ? currentIndex > 0 : currentIndex <= 0
+                    }"
                     role="button"
+                    aria-label="@lang('shop::components.carousel.previous')"
                     tabindex="0"
-                    :aria-label="'Go to slide ' + (index + 1)"
-                    @click="navigateByPagination(index)"
-                    @keydown.enter="navigateByPagination(index)"
-                    @keydown.space.prevent="navigateByPagination(index)"
+                    v-if="images?.length >= 2"
+                    @click="navigate('prev')"
                 >
+                </span>
+
+                <span
+                    class="icon-arrow-right hero-slider-arrow right-3.5"
+                    :class="{
+                        'cursor-not-allowed opacity-40': direction == 'rtl' && currentIndex == 0,
+                        'cursor-pointer': direction == 'rtl' ? currentIndex < 0 : currentIndex >= 0
+                    }"
+                    role="button"
+                    aria-label="@lang('shop::components.carousel.next')"
+                    tabindex="0"
+                    v-if="images?.length >= 2"
+                    @click="navigate('next')"
+                >
+                </span>
+
+                <!-- Pagination -->
+                <div
+                    class="hero-slider-dots"
+                    v-if="images?.length >= 2"
+                >
+                    <button
+                        type="button"
+                        v-for="(image, index) in images"
+                        :key="index"
+                        class="hero-slider-dot focus:outline-none"
+                        :class="{ 'is-active': index === Math.abs(currentIndex) }"
+                        :aria-label="'Go to slide ' + (index + 1)"
+                        @click="navigateByPagination(index)"
+                        @keydown.enter="navigateByPagination(index)"
+                        @keydown.space.prevent="navigateByPagination(index)"
+                    ></button>
                 </div>
             </div>
         </div>
@@ -307,7 +421,9 @@
                 },
 
                 setPositionByIndex() {
-                    this.currentTranslate = this.currentIndex * -window.innerWidth;
+                    const slideWidth = this.slides[0]?.clientWidth || this.slider?.parentElement?.clientWidth || window.innerWidth;
+
+                    this.currentTranslate = this.currentIndex * -slideWidth;
 
                     this.prevTranslate = this.currentTranslate;
 
