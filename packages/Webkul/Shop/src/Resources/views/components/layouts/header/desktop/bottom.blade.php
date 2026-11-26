@@ -584,15 +584,20 @@
                 },
 
                 getCategories() {
-                    this.$axios.get("{{ route('shop.api.categories.tree') }}")
+                    window.__categoryTreePromise = window.__categoryTreePromise || this.$axios.get("{{ route('shop.api.categories.tree') }}");
+
+                    window.__categoryTreePromise
                         .then(response => {
                             this.isLoading = false;
                             this.categories = response.data.data;
-                            localStorage.setItem('categories', JSON.stringify(this.categories));
+                            try {
+                                localStorage.setItem('categories', JSON.stringify(this.categories));
+                            } catch (e) {}
 
                             this.$nextTick(this.positionMegaMenus);
                         })
                         .catch(error => {
+                            window.__categoryTreePromise = null;
                             console.log(error);
                         });
                 },

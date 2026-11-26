@@ -60,31 +60,49 @@ class CategoryController extends APIController
     /**
      * Get all categories in tree format.
      */
-    public function tree(): JsonResource
+    public function tree(): JsonResponse
     {
-        $categories = $this->categoryRepository->getVisibleCategoryTree(core()->getCurrentChannel()->root_category_id);
+        $data = $this->catalogApiCache->remember('categories_tree', [], function () {
+            $categories = $this->categoryRepository->getVisibleCategoryTree(core()->getCurrentChannel()->root_category_id);
 
-        return CategoryTreeResource::collection($categories);
+            return CategoryTreeResource::collection($categories)
+                ->response()
+                ->getData(true);
+        });
+
+        return response()->json($data)->withHeaders($this->catalogCacheHeaders());
     }
 
     /**
      * Get filterable attributes for category.
      */
-    public function getAttributes(): JsonResource
+    public function getAttributes(): JsonResponse
     {
-        if (! request('category_id')) {
-            $filterableAttributes = $this->attributeRepository->getFilterableAttributes();
+        $categoryId = (int) request('category_id');
 
-            return AttributeResource::collection($filterableAttributes);
-        }
+        $data = $this->catalogApiCache->remember('category_attributes_'.($categoryId ?: 'all'), request()->all(), function () use ($categoryId) {
+            if (! $categoryId) {
+                $filterableAttributes = $this->attributeRepository->getFilterableAttributes();
 
-        $category = $this->categoryRepository->findOrFail(request('category_id'));
+                return AttributeResource::collection($filterableAttributes)
+                    ->response()
+                    ->getData(true);
+            }
 
-        if (empty($filterableAttributes = $category->filterableAttributes)) {
-            $filterableAttributes = $this->attributeRepository->getFilterableAttributes();
-        }
+            $category = $this->categoryRepository->findOrFail($categoryId);
 
-        return AttributeResource::collection($filterableAttributes);
+            $filterableAttributes = $category->filterableAttributes;
+
+            if (empty($filterableAttributes)) {
+                $filterableAttributes = $this->attributeRepository->getFilterableAttributes();
+            }
+
+            return AttributeResource::collection($filterableAttributes)
+                ->response()
+                ->getData(true);
+        });
+
+        return response()->json($data)->withHeaders($this->catalogCacheHeaders());
     }
 
     /**

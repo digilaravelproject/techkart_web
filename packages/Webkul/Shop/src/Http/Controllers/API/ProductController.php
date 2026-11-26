@@ -124,15 +124,28 @@ class ProductController extends APIController
      *
      * @param  int  $id
      */
-    public function relatedProducts($id): JsonResource
+    public function relatedProducts($id): JsonResponse
     {
-        $product = $this->productRepository->findOrFail($id);
+        $data = $this->catalogApiCache->remember("products_related_{$id}", request()->query(), function () use ($id) {
+            $product = $this->productRepository->findOrFail($id);
 
-        $relatedProducts = $product->related_products()
-            ->take(core()->getConfigData('catalog.products.product_view_page.no_of_related_products'))
-            ->get();
+            $relatedProducts = $product->related_products()
+                ->with([
+                    'images',
+                    'reviews',
+                    'attribute_values',
+                    'price_indices',
+                    'inventory_indices',
+                ])
+                ->take(core()->getConfigData('catalog.products.product_view_page.no_of_related_products'))
+                ->get();
 
-        return ProductCardResource::collection($relatedProducts);
+            return ProductCardResource::collection($relatedProducts)
+                ->response()
+                ->getData(true);
+        });
+
+        return response()->json($data)->withHeaders($this->catalogCacheHeaders());
     }
 
     /**
@@ -140,14 +153,27 @@ class ProductController extends APIController
      *
      * @param  int  $id
      */
-    public function upSellProducts($id): JsonResource
+    public function upSellProducts($id): JsonResponse
     {
-        $product = $this->productRepository->findOrFail($id);
+        $data = $this->catalogApiCache->remember("products_upsell_{$id}", request()->query(), function () use ($id) {
+            $product = $this->productRepository->findOrFail($id);
 
-        $upSellProducts = $product->up_sells()
-            ->take(core()->getConfigData('catalog.products.product_view_page.no_of_up_sells_products'))
-            ->get();
+            $upSellProducts = $product->up_sells()
+                ->with([
+                    'images',
+                    'reviews',
+                    'attribute_values',
+                    'price_indices',
+                    'inventory_indices',
+                ])
+                ->take(core()->getConfigData('catalog.products.product_view_page.no_of_up_sells_products'))
+                ->get();
 
-        return ProductCardResource::collection($upSellProducts);
+            return ProductCardResource::collection($upSellProducts)
+                ->response()
+                ->getData(true);
+        });
+
+        return response()->json($data)->withHeaders($this->catalogCacheHeaders());
     }
 }
