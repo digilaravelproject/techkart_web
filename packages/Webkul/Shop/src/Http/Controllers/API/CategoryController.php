@@ -138,21 +138,31 @@ class CategoryController extends APIController
     /**
      * Get product maximum price.
      */
-    public function getProductMaxPrice($categoryId = null): JsonResource
+    public function getProductMaxPrice($categoryId = null): JsonResponse
     {
-        if (core()->getConfigData('catalog.products.search.engine') == 'elastic') {
-            $searchEngine = core()->getConfigData('catalog.products.search.storefront_mode');
-        }
+        $attributeCode = request('attribute_code', 'price');
 
-        $maxPrice = $this->productRepository
-            ->setSearchEngine($searchEngine ?? 'database')
-            ->getMaxPrice([
-                'category_id' => $categoryId,
-                'attribute_code' => request('attribute_code', 'price'),
-            ]);
+        $data = $this->catalogApiCache->remember('category_max_price_'.($categoryId ?: 'all')."_{$attributeCode}", [], function () use ($categoryId, $attributeCode) {
+            $searchEngine = 'database';
 
-        return new JsonResource([
-            'max_price' => core()->convertPrice($maxPrice),
-        ]);
+            if (core()->getConfigData('catalog.products.search.engine') == 'elastic') {
+                $searchEngine = core()->getConfigData('catalog.products.search.storefront_mode');
+            }
+
+            $maxPrice = $this->productRepository
+                ->setSearchEngine($searchEngine)
+                ->getMaxPrice([
+                    'category_id' => $categoryId,
+                    'attribute_code' => $attributeCode,
+                ]);
+
+            return [
+                'data' => [
+                    'max_price' => core()->convertPrice($maxPrice),
+                ],
+            ];
+        });
+
+        return response()->json($data)->withHeaders($this->catalogCacheHeaders());
     }
 }
