@@ -30,7 +30,9 @@ class ThemeController extends Controller
      */
     public function index()
     {
-        $themes = $this->themeCatalog->all();
+        $themes = $this->themeCatalog->all()
+            ->filter(fn ($theme) => ! empty($theme['is_installed']))
+            ->values();
 
         $channels = $this->channelRepository->all();
 

@@ -298,10 +298,6 @@
                                 key: 'installed',
                                 label: "@lang('admin::app.appearance.themes.index.my-themes')",
                                 themes: this.themes.filter(theme => theme.is_installed),
-                            }, {
-                                key: 'available',
-                                label: "@lang('admin::app.appearance.themes.index.buy-themes')",
-                                themes: this.themes.filter(theme => ! theme.is_installed),
                             },
                         ].filter(group => group.themes.length);
                     },
