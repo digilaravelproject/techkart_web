@@ -1,85 +1,22 @@
-<!-- For large screens greater than 1180px. -->
-<div class="sticky top-20 flex h-max gap-6 max-1180:hidden">
-    <!-- Product Image and Videos Slider (Thumbnails) -->
-    <div class="flex min-w-[85px] max-w-[85px] flex-col items-center gap-2">
-        <!-- Arrow Up -->
-        <span
-            class="icon-arrow-up cursor-pointer text-xl text-slate-600 transition hover:text-black"
-            role="button"
-            aria-label="@lang('shop::app.components.products.carousel.previous')"
-            tabindex="0"
-            @click="swipeDown"
-            v-if="lengthOfMedia"
-        >
-        </span>
-
-        <!-- Swiper Container -->
-        <div
-            ref="swiperContainer"
-            class="flex flex-col max-h-[520px] gap-2.5 overflow-y-auto scroll-smooth scrollbar-hide py-1"
-        >
-            <template v-for="(media, index) in [...media.images, ...media.videos]">
-                <video
-                    v-if="media.type == 'videos'"
-                    :class="`h-[78px] w-[78px] min-w-[78px] cursor-pointer rounded-xl border-2 object-cover ${isActiveMedia(index) ? 'pointer-events-none border-navyBlue shadow-md' : 'border-slate-200 hover:border-slate-400'}`"
-                    @click="change(media, index)"
-                    alt="{{ $product->name }}"
-                    tabindex="0"
-                >
-                    <source
-                        :src="media.video_url"
-                        type="video/mp4"
-                    />
-                </video>
-
-                <div
-                    v-else
-                    :class="`h-[78px] w-[78px] min-w-[78px] cursor-pointer rounded-xl border-2 overflow-hidden bg-slate-50 p-1 flex items-center justify-center transition ${isActiveMedia(index) ? 'pointer-events-none border-navyBlue shadow-md' : 'border-slate-200 hover:border-slate-400'}`"
-                    tabindex="0"
-                    @click="change(media, index)"
-                >
-                    <img
-                        class="h-full w-full object-contain"
-                        :src="media.small_image_url"
-                        :alt="media.alt"
-                        width="70"
-                        height="70"
-                    />
-                </div>
-            </template>
-        </div>
-
-        <!-- Arrow Down -->
-        <span
-            class="icon-arrow-down cursor-pointer text-xl text-slate-600 transition hover:text-black"
-            v-if="lengthOfMedia"
-            role="button"
-            aria-label="@lang('shop::app.components.products.carousel.previous')"
-            tabindex="0"
-            @click="swipeTop"
-        >
-        </span>
-    </div>
-
-    <!-- Product Base Image and Video with Shimmer-->
+<!-- Desktop Gallery (AURORA E-commerce Layout) -->
+<div class="sticky top-20 flex flex-col gap-4 max-1180:hidden" style="width: 500px; max-width: 100%;">
+    <!-- Main Big Image Container -->
     <div
-        class="product-gallery-img-container"
+        class="aurora-main-image-card"
         v-show="isMediaLoading"
     >
-        <div class="shimmer h-full w-full rounded-2xl bg-zinc-200"></div>
+        <div class="shimmer" style="width: 100%; height: 100%; border-radius: 20px; background-color: #f1f5f9;"></div>
     </div>
 
     <div
-        class="product-gallery-img-container"
+        class="aurora-main-image-card"
         v-show="! isMediaLoading"
     >
         <img
-            class="cursor-pointer transition-transform duration-300 hover:scale-105"
+            class="aurora-hero-image"
             :src="baseFile.path"
             v-if="baseFile.type == 'image'"
             :alt="baseFile.alt"
-            width="560"
-            height="580"
             tabindex="0"
             @click="isImageZooming = !isImageZooming"
             @load="onMediaLoad()"
@@ -88,13 +25,13 @@
         />
 
         <div
-            class="flex h-full w-full items-center justify-center cursor-pointer rounded-xl"
+            style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
             tabindex="0"
             v-if="baseFile.type == 'video'"
         >
             <video
                 controls
-                class="max-h-full max-w-full rounded-xl"
+                style="max-width: 100%; max-height: 100%; border-radius: 16px;"
                 alt="{{ $product->name }}"
                 @click="isImageZooming = !isImageZooming"
                 @loadeddata="onMediaLoad()"
@@ -106,5 +43,76 @@
                 />
             </video>
         </div>
+
+        <!-- Zoom Icon Overlay (like AURORA) -->
+        <span
+            class="aurora-zoom-btn"
+            @click="isImageZooming = !isImageZooming"
+            title="Click to zoom"
+        >
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+            </svg>
+        </span>
+    </div>
+
+    <!-- Horizontal Thumbnails Carousel (Directly Under Main Image) -->
+    <div class="aurora-thumbnails-bar" v-if="[...media.images, ...media.videos].length > 1">
+        <!-- Prev Arrow -->
+        <button
+            type="button"
+            class="aurora-thumb-nav-btn"
+            aria-label="@lang('shop::app.components.products.carousel.previous')"
+            @click="swipeTop"
+            v-if="lengthOfMedia"
+        >
+            <span class="icon-arrow-left text-sm"></span>
+        </button>
+
+        <!-- Thumbnails Track -->
+        <div
+            ref="swiperContainer"
+            class="aurora-thumbnails-track"
+        >
+            <template v-for="(media, index) in [...media.images, ...media.videos]">
+                <!-- Video Thumbnail -->
+                <div
+                    v-if="media.type == 'videos'"
+                    :class="['aurora-thumb-slot', isActiveMedia(index) ? 'is-active' : '']"
+                    @click="change(media, index)"
+                >
+                    <video
+                        style="width: 100%; height: 100%; object-fit: cover;"
+                        alt="{{ $product->name }}"
+                    >
+                        <source :src="media.video_url" type="video/mp4" />
+                    </video>
+                </div>
+
+                <!-- Image Thumbnail -->
+                <div
+                    v-else
+                    :class="['aurora-thumb-slot', isActiveMedia(index) ? 'is-active' : '']"
+                    @click="change(media, index)"
+                >
+                    <img
+                        :src="media.small_image_url"
+                        :alt="media.alt"
+                        style="width: 100%; height: 100%; object-fit: contain;"
+                    />
+                </div>
+            </template>
+        </div>
+
+        <!-- Next Arrow -->
+        <button
+            type="button"
+            class="aurora-thumb-nav-btn"
+            aria-label="@lang('shop::app.components.products.carousel.next')"
+            @click="swipeDown"
+            v-if="lengthOfMedia"
+        >
+            <span class="icon-arrow-right text-sm"></span>
+        </button>
     </div>
 </div>
