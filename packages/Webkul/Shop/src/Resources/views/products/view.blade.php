@@ -405,8 +405,8 @@
 
                                         <x-shop::button
                                             type="submit"
-                                            class="secondary-button w-full max-w-full max-sm:!max-w-none max-sm:!w-auto max-md:py-3 max-sm:rounded-lg max-sm:py-1.5"
-                                            button-type="secondary-button"
+                                            class="primary-button w-full max-w-full !bg-slate-900 !text-white hover:!bg-black font-semibold text-base py-3.5 rounded-xl shadow-sm transition-all hover:shadow-md max-sm:!max-w-none max-sm:!w-auto max-md:py-3 max-sm:rounded-lg max-sm:py-2.5"
+                                            button-type="primary-button"
                                             :loading="false"
                                             :title="trans('shop::app.products.view.add-to-cart')"
                                             :disabled="! $product->isSaleable(1)"
@@ -473,6 +473,22 @@
                                 </div>
 
                                 {!! view_render_event('bagisto.shop.products.view.additional_actions.after', ['product' => $product]) !!}
+
+                                <!-- Trust & Delivery Badges (AURORA Style) -->
+                                <div class="mt-8 grid grid-cols-3 gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-center max-w-[470px]">
+                                    <div class="space-y-0.5">
+                                        <p class="text-xs font-bold text-slate-900">⚡ Fast Delivery</p>
+                                        <p class="text-[11px] text-slate-500">2-4 Working Days</p>
+                                    </div>
+                                    <div class="border-x border-slate-200 space-y-0.5 px-1">
+                                        <p class="text-xs font-bold text-slate-900">📦 Free Shipping</p>
+                                        <p class="text-[11px] text-slate-500">On prepaid orders</p>
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <p class="text-xs font-bold text-slate-900">🔄 Easy Returns</p>
+                                        <p class="text-[11px] text-slate-500">7 Days Policy</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -10,7 +10,7 @@
             type="text/x-template"
             id="v-product-configurable-options-template"
         >
-            <div class="w-[455px] max-w-full max-sm:w-full">
+            <div class="w-full max-w-[520px]">
                 <input
                     type="hidden"
                     name="selected_configurable_option"
@@ -20,182 +20,184 @@
                 >
 
                 <div
-                    class="mt-5"
+                    class="mt-6"
                     v-for='(attribute, index) in childAttributes'
+                    :key="attribute.id"
                 >
-                    <!-- Dropdown Options Container -->
-                    <template v-if="! attribute.swatch_type || attribute.swatch_type == '' || attribute.swatch_type == 'dropdown'">
-                        <!-- Dropdown Label -->
-                        <h2 class="mb-4 text-xl max-sm:mb-1.5 max-sm:text-base max-sm:font-medium">
-                            @{{ attribute.label }}
-                        </h2>
-                        
-                        <!-- Dropdown Options -->
-                        <v-field
-                            as="select"
-                            :name="'super_attribute[' + attribute.id + ']'"
-                            class="custom-select mb-3 block w-full cursor-pointer rounded-lg border border-zinc-200 bg-white px-5 py-3 text-base text-zinc-500 focus:border-blue-500 focus:ring-blue-500"
-                            :class="[errors['super_attribute[' + attribute.id + ']'] ? 'border border-red-500' : '']"
-                            :id="'attribute_' + attribute.id"
-                            v-model="attribute.selectedValue"
-                            rules="required"
-                            :label="attribute.label"
-                            :aria-label="attribute.label"
-                            :disabled="attribute.disabled"
-                            @change="configure(attribute, $event.target.value)"
-                        >
-                            <option
-                                v-for='(option, index) in attribute.options'
-                                :value="option.id"
-                            >
-                                @{{ option.label }}
-                            </option>
-                        </v-field>
-                    </template>
-
-                    <!-- Swatch Options Container -->
-                    <template v-else>
-                        <!-- Option Label -->
-                        <h2 class="mb-4 text-xl max-sm:mb-2 max-sm:text-base">
-                            @{{ attribute.label }}
-                        </h2>
-
-                        <!-- Swatch Options -->
-                        <div class="flex items-center gap-3">
-                            <template v-for="(option, index) in attribute.options">
-                                <template v-if="option.id">
-                                    <!-- Color Swatch Options -->
-                                    <label
-                                        class="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
-                                        :class="{'ring-2 ring-gray-900' : option.id == attribute.selectedValue}"
-                                        :title="option.label"
-                                        v-if="attribute.swatch_type == 'color'"
-                                    >
-                                        <v-field
-                                            type="radio"
-                                            :name="'super_attribute[' + attribute.id + ']'"
-                                            :value="option.id"
-                                            v-slot="{ field }"
-                                            rules="required"
-                                            :label="attribute.label"
-                                            :aria-label="attribute.label"
-                                        >
-                                            <input
-                                                type="radio"
-                                                :name="'super_attribute[' + attribute.id + ']'"
-                                                :value="option.id"
-                                                v-bind="field"
-                                                :id="'attribute_' + attribute.id"
-                                                :aria-labelledby="'color-choice-' + index + '-label'"
-                                                class="peer sr-only"
-                                                @click="configure(attribute, $event.target.value)"
-                                            />
-                                        </v-field>
-
-                                        <span
-                                            class="h-8 w-8 rounded-full border border-gray-200 max-sm:h-[25px] max-sm:w-[25px]"
-                                            tabindex="0"
-                                            :style="{ 'background-color': option.swatch_value }"
-                                        ></span>
-                                    </label>
-
-                                    <!-- Image Swatch Options -->
-                                    <label 
-                                        class="group relative flex h-[60px] w-[60px] cursor-pointer items-center justify-center overflow-hidden rounded-md border bg-white font-medium uppercase text-gray-900 hover:bg-gray-50 sm:py-6"
-                                        :class="{'border-navyBlue' : option.id == attribute.selectedValue }"
-                                        :title="option.label"
-                                        v-if="attribute.swatch_type == 'image'"
-                                    >
-                                        <v-field
-                                            type="radio"
-                                            :name="'super_attribute[' + attribute.id + ']'"
-                                            v-model="attribute.selectedValue"
-                                            :value="option.id"
-                                            v-slot="{ field }"
-                                            rules="required"
-                                            :label="attribute.label"
-                                            :aria-label="attribute.label"
-                                        >
-                                            <input
-                                                type="radio"
-                                                :name="'super_attribute[' + attribute.id + ']'"
-                                                :value="option.id"
-                                                v-bind="field"
-                                                :id="'attribute_' + attribute.id"
-                                                :aria-labelledby="'color-choice-' + index + '-label'"
-                                                class="peer sr-only"
-                                                @click="configure(attribute, $event.target.value)"
-                                            />
-                                        </v-field>
-
-                                        <img
-                                            :src="option.swatch_value"
-                                            :title="option.label"
-                                            :alt="option.swatch_alt || option.label"
-                                        />
-                                    </label>
-
-                                    <!-- Text Swatch Options -->
-                                    <label 
-                                        class="group relative flex h-fit min-w-fit cursor-pointer items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-3 font-medium uppercase text-gray-900 hover:bg-gray-50 max-sm:h-fit max-sm:w-fit max-sm:px-3.5 max-sm:py-2"
-                                        :class="{'border-transparent !bg-navyBlue text-white' : option.id == attribute.selectedValue }"
-                                        :title="option.label"
-                                        v-if="attribute.swatch_type == 'text'"
-                                    >
-                                        <v-field
-                                            type="radio"
-                                            :name="'super_attribute[' + attribute.id + ']'"
-                                            :value="option.id"
-                                            v-model="attribute.selectedValue"
-                                            v-slot="{ field }"
-                                            rules="required"
-                                            :label="attribute.label"
-                                            :aria-label="attribute.label"
-                                        >
-                                            <input
-                                                type="radio"
-                                                :name="'super_attribute[' + attribute.id + ']'"
-                                                :value="option.id"
-                                                v-bind="field"
-                                                :id="'attribute_' + attribute.id"
-                                                class="peer sr-only"
-                                                :aria-labelledby="'color-choice-' + index + '-label'"
-                                                @click="configure(attribute, $event.target.value)"
-                                            />
-                                        </v-field>
-
-                                        <span class="text-lg max-sm:text-sm">
-                                            @{{ option.label }}
-                                        </span>
-
-                                        <span
-                                            class="pointer-events-none absolute -inset-px rounded-full"
-                                            role="presentation"
-                                        >
-                                        </span>
-                                    </label>
-                                </template>
-                            </template>
-
-                            <span
-                                class="text-sm text-gray-600 max-sm:text-xs"
-                                v-if="! attribute.options.length"
-                            >
-                                @lang('shop::app.products.view.type.configurable.select-above-options')
+                    <!-- Header with Label and Selected Value -->
+                    <div class="mb-3 flex items-center justify-between">
+                        <span class="text-sm font-bold uppercase tracking-wider text-slate-900">
+                            @{{ attribute.label }}:
+                            <span class="font-semibold text-slate-600 normal-case ml-1">
+                                @{{ getSelectedOptionLabel(attribute) }}
                             </span>
-                        </div>
-                    </template>
+                        </span>
+
+                        <span
+                            class="text-xs font-medium text-slate-400"
+                            v-if="! attribute.selectedValue"
+                        >
+                            Select an option
+                        </span>
+                    </div>
+
+                    <!-- 1. Color Swatch Options -->
+                    <div
+                        class="flex flex-wrap items-center gap-3"
+                        v-if="isColorAttribute(attribute)"
+                    >
+                        <template v-for="(option, optIdx) in attribute.options">
+                            <label
+                                class="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full p-0.5 transition-all duration-200 focus:outline-none"
+                                :class="[
+                                    option.id == attribute.selectedValue
+                                        ? 'ring-2 ring-slate-900 ring-offset-2 scale-110 shadow-sm'
+                                        : 'hover:scale-105 opacity-85 hover:opacity-100'
+                                ]"
+                                :title="option.label"
+                                v-if="option.id"
+                            >
+                                <v-field
+                                    type="radio"
+                                    :name="'super_attribute[' + attribute.id + ']'"
+                                    :value="option.id"
+                                    v-model="attribute.selectedValue"
+                                    v-slot="{ field }"
+                                    rules="required"
+                                    :label="attribute.label"
+                                    :aria-label="attribute.label"
+                                >
+                                    <input
+                                        type="radio"
+                                        :name="'super_attribute[' + attribute.id + ']'"
+                                        :value="option.id"
+                                        v-bind="field"
+                                        :id="'attribute_' + attribute.id + '_' + option.id"
+                                        class="peer sr-only"
+                                        @click="configure(attribute, option.id)"
+                                    />
+                                </v-field>
+
+                                <span
+                                    class="h-full w-full rounded-full border border-black/15 shadow-inner"
+                                    :style="{ 'background-color': getColorValue(option) }"
+                                ></span>
+                            </label>
+                        </template>
+
+                        <span
+                            class="text-xs text-slate-500"
+                            v-if="! attribute.options.length"
+                        >
+                            @lang('shop::app.products.view.type.configurable.select-above-options')
+                        </span>
+                    </div>
+
+                    <!-- 2. Image Swatch Options -->
+                    <div
+                        class="flex flex-wrap items-center gap-2.5"
+                        v-else-if="attribute.swatch_type == 'image'"
+                    >
+                        <template v-for="(option, optIdx) in attribute.options">
+                            <label 
+                                class="group relative flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 bg-white transition hover:border-slate-400"
+                                :class="option.id == attribute.selectedValue ? 'border-slate-900 ring-2 ring-slate-900/20 shadow-sm' : 'border-slate-200'"
+                                :title="option.label"
+                                v-if="option.id"
+                            >
+                                <v-field
+                                    type="radio"
+                                    :name="'super_attribute[' + attribute.id + ']'"
+                                    v-model="attribute.selectedValue"
+                                    :value="option.id"
+                                    v-slot="{ field }"
+                                    rules="required"
+                                    :label="attribute.label"
+                                    :aria-label="attribute.label"
+                                >
+                                    <input
+                                        type="radio"
+                                        :name="'super_attribute[' + attribute.id + ']'"
+                                        :value="option.id"
+                                        v-bind="field"
+                                        :id="'attribute_' + attribute.id + '_' + option.id"
+                                        class="peer sr-only"
+                                        @click="configure(attribute, option.id)"
+                                    />
+                                </v-field>
+
+                                <img
+                                    class="h-full w-full object-cover"
+                                    :src="option.swatch_value"
+                                    :title="option.label"
+                                    :alt="option.swatch_alt || option.label"
+                                />
+                            </label>
+                        </template>
+                    </div>
+
+                    <!-- 3. Size / Text / Button Options (Default for all other attributes, NO DROPDOWNS!) -->
+                    <div
+                        class="flex flex-wrap items-center gap-2.5"
+                        v-else
+                    >
+                        <template v-for="(option, optIdx) in attribute.options">
+                            <label 
+                                class="group relative flex min-w-[52px] h-[46px] px-4 cursor-pointer items-center justify-center rounded-xl border text-sm font-bold uppercase transition-all duration-200 select-none"
+                                :class="[
+                                    option.id == attribute.selectedValue
+                                        ? '!bg-slate-900 !border-slate-900 !text-white shadow-md ring-2 ring-slate-900/25'
+                                        : 'bg-white border-slate-300 text-slate-800 hover:border-slate-900 hover:bg-slate-50'
+                                ]"
+                                :title="option.label"
+                                v-if="option.id"
+                            >
+                                <v-field
+                                    type="radio"
+                                    :name="'super_attribute[' + attribute.id + ']'"
+                                    :value="option.id"
+                                    v-model="attribute.selectedValue"
+                                    v-slot="{ field }"
+                                    rules="required"
+                                    :label="attribute.label"
+                                    :aria-label="attribute.label"
+                                >
+                                    <input
+                                        type="radio"
+                                        :name="'super_attribute[' + attribute.id + ']'"
+                                        :value="option.id"
+                                        v-bind="field"
+                                        :id="'attribute_' + attribute.id + '_' + option.id"
+                                        class="peer sr-only"
+                                        @click="configure(attribute, option.id)"
+                                    />
+                                </v-field>
+
+                                <span class="tracking-wide">
+                                    @{{ option.label }}
+                                </span>
+                            </label>
+                        </template>
+
+                        <span
+                            class="text-xs text-slate-500"
+                            v-if="! attribute.options.length"
+                        >
+                            @lang('shop::app.products.view.type.configurable.select-above-options')
+                        </span>
+                    </div>
 
                     <v-error-message
                         :name="'super_attribute[' + attribute.id + ']'"
                         v-slot="{ message }"
                     >
-                        <p class="mt-1 text-xs italic text-red-500">
+                        <p class="mt-1.5 text-xs font-medium text-red-500">
                             @{{ message }}
                         </p>
                     </v-error-message>
                 </div>
             </div>
+        </script>
         </script>
 
         <script type="module">
@@ -247,6 +249,24 @@
                 },
 
                 methods: {
+                    isColorAttribute(attribute) {
+                        if (attribute.swatch_type === 'color') return true;
+                        let code = (attribute.code || '').toLowerCase();
+                        let label = (attribute.label || '').toLowerCase();
+                        return code.includes('color') || label.includes('color') || code.includes('colour') || label.includes('colour');
+                    },
+
+                    getColorValue(option) {
+                        if (option.swatch_value) return option.swatch_value;
+                        return option.label ? option.label.toLowerCase() : '#e2e8f0';
+                    },
+
+                    getSelectedOptionLabel(attribute) {
+                        if (! attribute.selectedValue) return '';
+                        let opt = attribute.options.find(o => o.id == attribute.selectedValue);
+                        return opt ? opt.label : '';
+                    },
+
                     configure(attribute, optionId) {
                         this.possibleOptionVariant = this.getPossibleOptionVariant(attribute, optionId);
 
