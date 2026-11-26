@@ -110,7 +110,7 @@ return [
         // GraphQL middleware for authentication and rate limiting
         'middleware' => [
             \Webkul\Affiliate\Http\Middleware\HandleAffiliateGraphQL::class,
-            'Webkul\BagistoApi\Http\Middleware\VerifyGraphQLStorefrontKey',
+            \App\Http\Middleware\FastVerifyGraphQLStorefrontKey::class,
         ],
     ],
 
