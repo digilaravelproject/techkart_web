@@ -246,6 +246,15 @@
 
                         this.childAttributes.unshift(attribute);
                     }
+
+                    this.$nextTick(() => {
+                        if (this.childAttributes.length && this.childAttributes[0].options.length) {
+                            let firstOption = this.childAttributes[0].options.find(opt => opt.id);
+                            if (firstOption) {
+                                this.configure(this.childAttributes[0], firstOption.id);
+                            }
+                        }
+                    });
                 },
 
                 methods: {

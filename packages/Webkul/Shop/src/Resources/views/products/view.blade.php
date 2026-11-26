@@ -289,12 +289,12 @@
                     >
 
                     <div class="container px-[60px] max-1180:px-0">
-                        <div class="mt-12 flex gap-9 max-1180:flex-wrap max-lg:mt-0 max-sm:gap-y-4">
+                        <div class="mt-10 flex justify-between gap-12 max-1180:flex-wrap max-lg:mt-0 max-sm:gap-y-4">
                             <!-- Gallery Blade Inclusion -->
                             @include('shop::products.view.gallery')
 
                             <!-- Details -->
-                            <div class="relative max-w-[590px] max-1180:w-full max-1180:max-w-full max-1180:px-5 max-sm:px-4">
+                            <div class="relative flex-1 min-w-[380px] max-w-[640px] max-1180:w-full max-1180:max-w-full max-1180:px-5 max-sm:px-4">
                                 {!! view_render_event('bagisto.shop.products.name.before', ['product' => $product]) !!}
 
                                 <div class="flex justify-between gap-4">
@@ -385,7 +385,7 @@
                                 @include('shop::products.view.types.booking')
 
                                 <!-- Product Actions and Quantity Box -->
-                                <div class="mt-8 flex max-w-[470px] gap-4 max-sm:mt-4 max-sm:flex-wrap">
+                                <div class="mt-8 flex max-w-[560px] gap-4 max-sm:mt-4 max-sm:flex-wrap">
 
                                     {!! view_render_event('bagisto.shop.products.view.quantity.before', ['product' => $product]) !!}
 
@@ -434,7 +434,7 @@
                                     @if (core()->getConfigData('catalog.products.storefront.buy_now_button_display'))
                                         <x-shop::button
                                             type="submit"
-                                            class="primary-button mt-5 w-full max-w-[470px] max-md:py-3 max-sm:mt-3 max-sm:rounded-lg max-sm:py-1.5"
+                                            class="primary-button mt-5 w-full max-w-[560px] max-md:py-3 max-sm:mt-3 max-sm:rounded-lg max-sm:py-1.5"
                                             button-type="primary-button"
                                             :title="trans('shop::app.products.view.buy-now')"
                                             :disabled="! $product->isSaleable(1)"
@@ -475,7 +475,7 @@
                                 {!! view_render_event('bagisto.shop.products.view.additional_actions.after', ['product' => $product]) !!}
 
                                 <!-- Trust & Delivery Badges (AURORA Style) -->
-                                <div class="mt-8 grid grid-cols-3 gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-center max-w-[470px]">
+                                <div class="mt-8 grid grid-cols-3 gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-center max-w-[560px]">
                                     <div class="space-y-0.5">
                                         <p class="text-xs font-bold text-slate-900">⚡ Fast Delivery</p>
                                         <p class="text-[11px] text-slate-500">2-4 Working Days</p>
