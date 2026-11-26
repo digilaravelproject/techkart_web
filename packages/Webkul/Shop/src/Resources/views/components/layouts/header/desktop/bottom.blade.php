@@ -91,10 +91,6 @@
                     aria-label="@lang('shop::app.components.layouts.header.desktop.bottom.submit')"
                 >
                 </button>
-
-                @if (core()->getConfigData('catalog.products.settings.image_search'))
-                    @include('shop::search.images.index')
-                @endif
             </form>
         </div>
 
