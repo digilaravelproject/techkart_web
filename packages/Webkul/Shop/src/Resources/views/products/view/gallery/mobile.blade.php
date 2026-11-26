@@ -52,7 +52,7 @@
 
                     <template v-else>
                         <img
-                            class="aspect-square max-h-full w-full max-w-full select-none transition-transform duration-300 ease-in-out"
+                            class="aspect-square max-h-full w-full max-w-full select-none object-contain bg-slate-50 p-2 transition-transform duration-300 ease-in-out"
                             :src="media.large_image_url"
                             :alt="media.alt"
                             v-on:error="onMediaError($event)"

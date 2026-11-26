@@ -2,6 +2,36 @@
     <x-shop::shimmer.products.gallery />
 </v-product-gallery>
 
+@pushOnce('styles')
+    <style>
+        .product-gallery-img-container {
+            width: 560px;
+            max-width: 100%;
+            height: 580px;
+            max-height: 580px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+        .product-gallery-img-container img {
+            max-height: 100% !important;
+            max-width: 100% !important;
+            width: auto !important;
+            height: auto !important;
+            object-fit: contain !important;
+            object-position: center !important;
+            display: block !important;
+            border-radius: 12px;
+        }
+    </style>
+@endPushOnce
+
 @pushOnce('scripts')
     <script
         type="text/x-template"
