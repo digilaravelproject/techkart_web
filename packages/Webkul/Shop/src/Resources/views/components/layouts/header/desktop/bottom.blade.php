@@ -296,6 +296,7 @@
             <div
                 class="group relative flex h-[77px] items-center border-b-4 border-transparent hover:border-b-4 hover:border-navyBlue"
                 v-for="category in categories"
+                @mouseenter="positionMegaMenus"
             >
                 <span>
                     <a
@@ -307,35 +308,40 @@
                 </span>
 
                 <div
-                    class="pointer-events-none absolute top-[78px] z-[1] max-h-[580px] w-max max-w-[1260px] translate-y-1 overflow-auto overflow-x-auto border border-b-0 border-l-0 border-r-0 border-t border-[#F3F3F3] bg-white p-9 opacity-0 shadow-[0_6px_6px_1px_rgba(0,0,0,.3)] transition duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-hover:duration-200 group-hover:ease-in ltr:-left-9 rtl:-right-9"
+                    class="pointer-events-none absolute top-[78px] z-50 max-h-[580px] w-max max-w-[min(1200px,calc(100vw-32px))] translate-y-1 overflow-y-auto overflow-x-hidden rounded-2xl border border-slate-200/90 bg-white p-7 opacity-0 shadow-[0_20px_50px_rgba(15,23,42,0.12)] transition duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-hover:duration-200 group-hover:ease-in ltr:-left-9 rtl:-right-9"
                     data-mega-menu-dropdown
                     v-if="category.children && category.children.length"
                 >
-                    <div class="flex justify-between gap-x-[70px]">
+                    <div class="flex flex-wrap gap-x-10 gap-y-7">
                         <div
-                            class="grid w-full min-w-max max-w-[150px] flex-auto grid-cols-[1fr] content-start gap-5"
+                            class="grid min-w-[140px] max-w-[210px] flex-auto grid-cols-[1fr] content-start gap-4"
                             v-for="pairCategoryChildren in pairCategoryChildren(category)"
                         >
                             <template v-for="secondLevelCategory in pairCategoryChildren">
-                                <p class="font-medium text-navyBlue">
-                                    <a :href="secondLevelCategory.url">
-                                        @{{ secondLevelCategory.name }}
-                                    </a>
-                                </p>
-
-                                <ul
-                                    class="grid grid-cols-[1fr] gap-3"
-                                    v-if="secondLevelCategory.children && secondLevelCategory.children.length"
-                                >
-                                    <li
-                                        class="text-sm font-medium text-zinc-500"
-                                        v-for="thirdLevelCategory in secondLevelCategory.children"
-                                    >
-                                        <a :href="thirdLevelCategory.url">
-                                            @{{ thirdLevelCategory.name }}
+                                <div class="space-y-2.5">
+                                    <p class="text-[13.5px] font-bold uppercase tracking-wider text-slate-900">
+                                        <a
+                                            :href="secondLevelCategory.url"
+                                            class="transition-colors hover:text-blue-600"
+                                        >
+                                            @{{ secondLevelCategory.name }}
                                         </a>
-                                    </li>
-                                </ul>
+                                    </p>
+
+                                    <ul
+                                        class="grid grid-cols-[1fr] gap-2"
+                                        v-if="secondLevelCategory.children && secondLevelCategory.children.length"
+                                    >
+                                        <li
+                                            class="text-[13px] font-normal text-slate-500 transition-colors hover:text-slate-900"
+                                            v-for="thirdLevelCategory in secondLevelCategory.children"
+                                        >
+                                            <a :href="thirdLevelCategory.url">
+                                                @{{ thirdLevelCategory.name }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </template>
                         </div>
                     </div>
@@ -363,6 +369,7 @@
                 <div
                     class="group relative flex h-[77px] items-center border-b-4 border-transparent hover:border-b-4 hover:border-navyBlue"
                     v-for="category in categories.slice(0, 4)"
+                    @mouseenter="positionMegaMenus"
                 >
                     <span>
                         <a
@@ -375,35 +382,42 @@
 
                     <!-- Dropdown for each category -->
                     <div
-                        class="pointer-events-none absolute top-[78px] z-[1] max-h-[580px] w-max max-w-[1260px] translate-y-1 overflow-auto overflow-x-auto border border-b-0 border-l-0 border-r-0 border-t border-[#F3F3F3] bg-white p-9 opacity-0 shadow-[0_6px_6px_1px_rgba(0,0,0,.3)] transition duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-hover:duration-200 group-hover:ease-in ltr:-left-9 rtl:-right-9 flex justify-between gap-x-[70px]"
+                        class="pointer-events-none absolute top-[78px] z-50 max-h-[580px] w-max max-w-[min(1200px,calc(100vw-32px))] translate-y-1 overflow-y-auto overflow-x-hidden rounded-2xl border border-slate-200/90 bg-white p-7 opacity-0 shadow-[0_20px_50px_rgba(15,23,42,0.12)] transition duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-hover:duration-200 group-hover:ease-in ltr:-left-9 rtl:-right-9"
                         data-mega-menu-dropdown
                         v-if="category.children && category.children.length"
                     >
-                        <div
-                            class="grid w-full min-w-max max-w-[150px] flex-auto grid-cols-[1fr] content-start gap-5"
-                            v-for="pairCategoryChildren in pairCategoryChildren(category)"
-                        >
-                            <template v-for="secondLevelCategory in pairCategoryChildren">
-                                <p class="font-medium text-navyBlue">
-                                    <a :href="secondLevelCategory.url">
-                                        @{{ secondLevelCategory.name }}
-                                    </a>
-                                </p>
+                        <div class="flex flex-wrap gap-x-10 gap-y-7">
+                            <div
+                                class="grid min-w-[140px] max-w-[210px] flex-auto grid-cols-[1fr] content-start gap-4"
+                                v-for="pairCategoryChildren in pairCategoryChildren(category)"
+                            >
+                                <template v-for="secondLevelCategory in pairCategoryChildren">
+                                    <div class="space-y-2.5">
+                                        <p class="text-[13.5px] font-bold uppercase tracking-wider text-slate-900">
+                                            <a
+                                                :href="secondLevelCategory.url"
+                                                class="transition-colors hover:text-blue-600"
+                                            >
+                                                @{{ secondLevelCategory.name }}
+                                            </a>
+                                        </p>
 
-                                <ul
-                                    class="grid grid-cols-[1fr] gap-3"
-                                    v-if="secondLevelCategory.children && secondLevelCategory.children.length"
-                                >
-                                    <li
-                                        class="text-sm font-medium text-zinc-500"
-                                        v-for="thirdLevelCategory in secondLevelCategory.children"
-                                    >
-                                        <a :href="thirdLevelCategory.url">
-                                            @{{ thirdLevelCategory.name }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </template>
+                                        <ul
+                                            class="grid grid-cols-[1fr] gap-2"
+                                            v-if="secondLevelCategory.children && secondLevelCategory.children.length"
+                                        >
+                                            <li
+                                                class="text-[13px] font-normal text-slate-500 transition-colors hover:text-slate-900"
+                                                v-for="thirdLevelCategory in secondLevelCategory.children"
+                                            >
+                                                <a :href="thirdLevelCategory.url">
+                                                    @{{ thirdLevelCategory.name }}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </div>
