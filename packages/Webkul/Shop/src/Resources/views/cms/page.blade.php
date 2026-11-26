@@ -8,33 +8,34 @@
 @push('styles')
 <style>
     .cms-page-hero {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
-        padding: 56px 24px 48px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 40px 24px 36px;
         text-align: center;
         margin-bottom: 0;
     }
     .cms-page-hero h1 {
-        font-size: 36px;
+        font-size: 32px;
         font-weight: 700;
-        color: #ffffff;
+        color: #0f172a;
         margin: 0 0 10px;
         line-height: 1.25;
         letter-spacing: -0.02em;
     }
     .cms-page-breadcrumb {
         font-size: 13px;
-        color: rgba(255,255,255,0.6);
+        color: #94a3b8;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
     }
     .cms-page-breadcrumb a {
-        color: rgba(255,255,255,0.7);
+        color: #64748b;
         text-decoration: none;
     }
     .cms-page-breadcrumb a:hover {
-        color: #ffffff;
+        color: #0f172a;
     }
     .cms-page-wrapper {
         max-width: 860px;
@@ -127,7 +128,7 @@
     <div class="cms-page-hero">
         <h1>{{ $page->page_title }}</h1>
         <div class="cms-page-breadcrumb">
-            <a href="{{ route('shop.home.index') }}">@lang('shop::app.components.layouts.header.home')</a>
+            <a href="{{ route('shop.home.index') }}">Home</a>
             <span>›</span>
             <span>{{ $page->page_title }}</span>
         </div>
